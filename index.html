@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swan Society — A Book Club for Curious Souls</title>
+<style>
+  :root {
+    --emerald: #0C2A24;
+    --emerald-deep: #0E1F1C;
+    --garnet: #3D0F1E;
+    --navy: #101935;
+    --onyx: #1C1C1C;
+    --gold: #D4AF6A;
+    --gold-soft: #C9A86A;
+    --ivory: #F4EFE3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: var(--emerald);
+    color: var(--ivory);
+    line-height: 1.6;
+  }
+
+  .deco-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin: 0 auto;
+  }
+
+  /* HERO */
+  header {
+    text-align: center;
+    padding: 64px 24px 48px;
+    background: radial-gradient(ellipse at top, var(--emerald-deep), var(--emerald) 70%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before, header::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border: 1px solid var(--gold);
+    opacity: 0.08;
+    transform: rotate(45deg);
+  }
+  header::before { top: -120px; left: -120px; }
+  header::after { bottom: -150px; right: -150px; }
+
+  .logo-mark {
+    max-width: 360px;
+    width: 90%;
+    margin: 0 auto 8px;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+
+  header .eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    max-width: 760px;
+    margin: 0 auto 18px;
+    color: var(--ivory);
+    position: relative;
+    z-index: 1;
+  }
+
+  header p.lede {
+    font-size: clamp(16px, 2.4vw, 19px);
+    max-width: 580px;
+    margin: 0 auto 32px;
+    color: #D9D2C2;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 14px 32px;
+    border-radius: 2px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .btn:hover { transform: translateY(-1px); opacity: 0.9; }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--emerald-deep);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+  }
+
+  /* PROBLEM / SOLUTION */
+  section {
+    padding: 64px 24px;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  .section-eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: clamp(24px, 4vw, 34px);
+    text-align: center;
+    margin-bottom: 32px;
+    letter-spacing: 0.02em;
+    font-weight: 700;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+  }
+
+  .problem-card {
+    background: rgba(244, 239, 227, 0.04);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 4px;
+    padding: 28px 22px;
+  }
+
+  .problem-card .icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .problem-card h3 {
+    font-size: 17px;
+    color: var(--gold);
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  .problem-card p {
+    font-size: 14.5px;
+    color: #C9C2B4;
+  }
+
+  /* HOW IT WORKS */
+  .how-it-works {
+    background: var(--emerald-deep);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 28px;
+    margin-top: 40px;
+    counter-reset: step;
+  }
+
+  .step {
+    text-align: center;
+    position: relative;
+    padding: 0 12px;
+  }
+
+  .step .num {
+    width: 52px;
+    height: 52px;
+    border: 1px solid var(--gold);
+    transform: rotate(45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+
+  .step .num span {
+    transform: rotate(-45deg);
+    font-family: Georgia, serif;
+    font-size: 20px;
+    color: var(--gold);
+  }
+
+  .step h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+    color: var(--ivory);
+  }
+
+  .step p {
+    font-size: 14px;
+    color: #C9C2B4;
+  }
+
+  /* VISION */
+  .vision {
+    text-align: center;
+  }
+
+  .vision-quote {
+    font-size: clamp(18px, 3vw, 24px);
+    font-style: italic;
+    max-width: 640px;
+    margin: 0 auto 24px;
+    color: var(--gold);
+    line-height: 1.5;
+  }
+
+  .vision p.body {
+    max-width: 640px;
+    margin: 0 auto;
+    color: #D9D2C2;
+    font-size: 15.5px;
+  }
+
+  .roadmap-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+
+  .tag {
+    font-size: 12.5px;
+    border: 1px solid rgba(212, 175, 106, 0.35);
+    color: var(--gold);
+    padding: 6px 14px;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+  }
+
+  /* CTA / WAITLIST */
+  .waitlist {
+    background: var(--emerald-deep);
+    text-align: center;
+  }
+
+  .waitlist h2 { margin-bottom: 12px; }
+
+  .waitlist p.sub {
+    color: #C9C2B4;
+    max-width: 480px;
+    margin: 0 auto 32px;
+    font-size: 15.5px;
+  }
+
+  form.waitlist-form {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  form.waitlist-form input[type="email"] {
+    flex: 1;
+    min-width: 220px;
+    padding: 14px 18px;
+    border: 1px solid rgba(212, 175, 106, 0.35);
+    background: rgba(244, 239, 227, 0.05);
+    color: var(--ivory);
+    border-radius: 2px;
+    font-size: 15px;
+  }
+
+  form.waitlist-form input[type="email"]::placeholder {
+    color: #8A8378;
+  }
+
+  form.waitlist-form input[type="email"]:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  .form-note {
+    font-size: 12.5px;
+    color: #8A8378;
+    margin-top: 14px;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid rgba(212, 175, 106, 0.15);
+  }
+
+  footer .icon-mark {
+    width: 56px;
+    margin-bottom: 16px;
+  }
+
+  footer p {
+    font-size: 13px;
+    color: #8A8378;
+    letter-spacing: 0.05em;
+  }
+
+  footer .tagline {
+    color: var(--gold);
+    margin-bottom: 8px;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="horizontal-lockup.png" alt="Swan Society" class="logo-mark">
+  <p class="eyebrow">Membership by invitation</p>
+  <h1>The book club runs itself. You just show up.</h1>
+  <p class="lede">Swan Society handles the voting, the RSVPs, the discussion questions, and the host rotation — so the person who loves books most doesn't have to be the one doing all the work.</p>
+  <div class="cta-group">
+    <a href="#waitlist" class="btn btn-primary">Join the waitlist</a>
+    <a href="#how-it-works" class="btn btn-secondary">See how it works</a>
+  </div>
+</header>
+
+<div class="deco-divider"></div>
+
+<section class="problem">
+  <p class="section-eyebrow">The problem</p>
+  <h2>Book clubs don't die from bad books. They die from logistics.</h2>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <span class="icon">📚</span>
+      <h3>Picking the book</h3>
+      <p>Someone has to source candidates, poll the group, and tally votes — every single month.</p>
+    </div>
+    <div class="problem-card">
+      <span class="icon">💬</span>
+      <h3>The group chat spiral</h3>
+      <p>RSVPs, who's hosting, who's bringing snacks — all buried in a thread nobody can find later.</p>
+    </div>
+    <div class="problem-card">
+      <span class="icon">❓</span>
+      <h3>Showing up unprepared</h3>
+      <p>No discussion questions, no plan — just an awkward silence and a glass of wine.</p>
+    </div>
+    <div class="problem-card">
+      <span class="icon">🔥</span>
+      <h3>The burnout</h3>
+      <p>One person carries it all, every month, until they quietly stop — and the club dissolves.</p>
+    </div>
+  </div>
+</section>
+
+<div class="deco-divider"></div>
+
+<section class="how-it-works" id="how-it-works">
+  <p class="section-eyebrow">How it works</p>
+  <h2>One loop. Beginning to end.</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="num"><span>1</span></div>
+      <h3>AI picks the shortlist</h3>
+      <p>Based on your club's favorite genres, we suggest 3 new releases worth voting on.</p>
+    </div>
+    <div class="step">
+      <div class="num"><span>2</span></div>
+      <h3>Everyone votes</h3>
+      <p>Members vote on the shortlist. The winner is selected automatically — no spreadsheet required.</p>
+    </div>
+    <div class="step">
+      <div class="num"><span>3</span></div>
+      <h3>RSVPs, sorted</h3>
+      <p>Date, time, location — members respond in one tap. No more "wait, are we still doing this Thursday?"</p>
+    </div>
+    <div class="step">
+      <div class="num"><span>4</span></div>
+      <h3>Show up prepared</h3>
+      <p>AI-generated discussion questions, ready the moment the book is chosen. No prep work, no blank stares.</p>
+    </div>
+  </div>
+</section>
+
+<div class="deco-divider"></div>
+
+<section class="vision">
+  <p class="section-eyebrow">The bigger picture</p>
+  <h2>This is the foundation. Here's where it goes next.</h2>
+  <p class="vision-quote">"The host-rotation handoff is the actual mechanism that prevents the burnout problem from recurring."</p>
+  <p class="body">Beyond the core loop, Swan Society is designed to guide a new host through setup automatically when it's their turn — RSVP reminders, venue suggestions, and a fully curated "host package" with themed food and decor pairings for the book of the month.</p>
+  <div class="roadmap-tags">
+    <span class="tag">Host rotation with handoff</span>
+    <span class="tag">RSVP reminders</span>
+    <span class="tag">Venue suggestions</span>
+    <span class="tag">Curated host packages</span>
+    <span class="tag">Host Pro subscription</span>
+  </div>
+</section>
+
+<div class="deco-divider"></div>
+
+<section class="waitlist" id="waitlist">
+  <p class="section-eyebrow">Get early access</p>
+  <h2>Be the first to know when Swan Society opens its doors.</h2>
+  <p class="sub">A book club for curious souls — minus the admin burden. Join the waitlist for early access and updates as we build.</p>
+  <form class="waitlist-form" onsubmit="return false;">
+    <input type="email" placeholder="you@example.com" required>
+    <button type="submit" class="btn btn-primary">Request access</button>
+  </form>
+  <p class="form-note">No spam. Just an invitation when membership opens.</p>
+</section>
+
+<footer>
+  <img src="icon-mark.png" alt="Swan Society icon" class="icon-mark">
+  <p class="tagline">Swan Society</p>
+  <p>A book club for curious souls</p>
+</footer>
+
+</body>
+</html>
