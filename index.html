@@ -12,6 +12,7 @@
     --emerald: #0C2A24;
     --emerald-deep: #0E1F1C;
     --garnet: #3D0F1E;
+    --garnet-deep: #2A0A15;
     --navy: #101935;
     --onyx: #1C1C1C;
     --gold: #D4AF6A;
@@ -24,7 +25,7 @@
   body {
     font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
     font-weight: 300;
-    background: var(--emerald);
+    background: var(--emerald-deep);
     color: var(--ivory);
     line-height: 1.7;
     letter-spacing: 0.01em;
@@ -46,7 +47,7 @@
   header {
     text-align: center;
     padding: 64px 24px 48px;
-    background: radial-gradient(ellipse at top, var(--emerald-deep), var(--emerald) 70%);
+    background: radial-gradient(ellipse at top, var(--navy), var(--emerald-deep) 70%);
     position: relative;
     overflow: hidden;
   }
@@ -57,7 +58,7 @@
     width: 300px;
     height: 300px;
     border: 1px solid var(--gold);
-    opacity: 0.08;
+    opacity: 0.1;
     transform: rotate(45deg);
   }
   header::before { top: -120px; left: -120px; }
@@ -185,6 +186,10 @@
     padding: 30px 22px;
   }
 
+  .problem-card:nth-child(2n) {
+    border-top-color: rgba(196, 90, 110, 0.6);
+  }
+
   .problem-card .icon {
     font-size: 28px;
     margin-bottom: 12px;
@@ -209,7 +214,7 @@
 
   /* HOW IT WORKS */
   .how-it-works {
-    background: var(--emerald-deep);
+    background: var(--navy);
   }
 
   .steps {
@@ -309,7 +314,7 @@
 
   /* CTA / WAITLIST */
   .waitlist {
-    background: var(--emerald-deep);
+    background: linear-gradient(180deg, var(--emerald-deep), var(--garnet-deep) 140%);
     text-align: center;
   }
 
