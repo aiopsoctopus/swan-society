@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swan Society — Mission Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --emerald: #0C2A24;
+    --garnet: #3D0F1E;
+    --navy: #101935;
+    --onyx: #1C1C1C;
+    --gold: #D4AF6A;
+    --gold-light: #e8c97e;
+    --ivory: #F4EFE3;
+    --ivory-dark: #ebe5d4;
+    --text: #2a2018;
+    --muted: #7a6e5e;
+    --success: #2d6a4f;
+    --warning: #8B5E00;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--onyx);
+    color: var(--ivory);
+    min-height: 100vh;
+  }
+
+  /* ── PASSWORD GATE ── */
+  #gate {
+    position: fixed; inset: 0;
+    background: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+  }
+  .gate-box {
+    text-align: center;
+    max-width: 360px; width: 90%;
+  }
+  .gate-box svg { width: 60px; margin-bottom: 24px; }
+  .gate-box h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    letter-spacing: .15em;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .gate-box p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--ivory);
+    opacity: .7;
+    margin-bottom: 28px;
+  }
+  .gate-box input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(212,175,106,.35);
+    border-radius: 4px;
+    color: var(--ivory);
+    font-family: 'Jost', sans-serif;
+    font-size: .95rem;
+    letter-spacing: .12em;
+    text-align: center;
+    outline: none;
+    margin-bottom: 14px;
+  }
+  .gate-box input::placeholder { opacity: .4; }
+  .gate-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--gold);
+    color: var(--onyx);
+    border: none;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-size: .85rem;
+    letter-spacing: .12em;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .gate-btn:hover { background: var(--gold-light); }
+  .gate-error { color: #e07070; font-size: .8rem; margin-top: 10px; min-height: 18px; }
+
+  /* ── MAIN LAYOUT ── */
+  #app { display: none; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(12,42,36,.97);
+    border-bottom: 1px solid rgba(212,175,106,.25);
+    display: flex; align-items: center; gap: 0;
+    padding: 0 24px;
+    backdrop-filter: blur(8px);
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: .75rem;
+    letter-spacing: .18em;
+    color: var(--gold);
+    padding: 16px 20px 16px 0;
+    margin-right: 16px;
+    border-right: 1px solid rgba(212,175,106,.2);
+  }
+  .nav-tabs { display: flex; gap: 0; flex: 1; overflow-x: auto; }
+  .nav-tab {
+    padding: 16px 18px;
+    font-family: 'Jost', sans-serif;
+    font-size: .78rem;
+    letter-spacing: .1em;
+    color: rgba(244,239,227,.5);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+    white-space: nowrap;
+    background: none; border-top: none; border-left: none; border-right: none;
+  }
+  .nav-tab:hover { color: var(--ivory); }
+  .nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .page { display: none; padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ── COUNTDOWN ── */
+  .countdown-band {
+    background: linear-gradient(135deg, var(--emerald), var(--navy));
+    border: 1px solid rgba(212,175,106,.3);
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .countdown-label {
+    font-family: 'Cinzel', serif;
+    font-size: .7rem;
+    letter-spacing: .2em;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .countdown-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: var(--ivory);
+  }
+  .countdown-digits {
+    display: flex; gap: 16px; align-items: flex-end;
+  }
+  .digit-block { text-align: center; }
+  .digit-num {
+    font-family: 'Cinzel', serif;
+    font-size: 2.4rem;
+    color: var(--gold);
+    line-height: 1;
+    display: block;
+  }
+  .digit-unit {
+    font-size: .68rem;
+    letter-spacing: .15em;
+    color: rgba(244,239,227,.45);
+    margin-top: 4px;
+  }
+  .digit-sep {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    color: rgba(212,175,106,.4);
+    line-height: 1;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  .current-hr-badge {
+    background: var(--gold);
+    color: var(--onyx);
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-family: 'Jost', sans-serif;
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .08em;
+  }
+
+  /* ── SCHEDULE ── */
+  .section-head {
+    font-family: 'Cinzel', serif;
+    font-size: .72rem;
+    letter-spacing: .2em;
+    color: var(--gold);
+    border-bottom: 1px solid rgba(212,175,106,.2);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    margin-top: 8px;
+  }
+
+  .schedule-grid { display: flex; flex-direction: column; gap: 8px; }
+
+  .hr-block {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .hr-block.active-block {
+    border-color: rgba(212,175,106,.5);
+    background: rgba(212,175,106,.06);
+  }
+  .hr-block.done-block {
+    opacity: .55;
+  }
+  .hr-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .hr-num {
+    font-family: 'Cinzel', serif;
+    font-size: .7rem;
+    letter-spacing: .12em;
+    color: var(--gold);
+    opacity: .7;
+    min-width: 48px;
+  }
+  .hr-time {
+    font-size: .75rem;
+    color: rgba(244,239,227,.4);
+    min-width: 80px;
+  }
+  .hr-title {
+    font-family: 'Jost', sans-serif;
+    font-size: .88rem;
+    font-weight: 500;
+    flex: 1;
+  }
+  .hr-badge {
+    font-size: .65rem;
+    letter-spacing: .1em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid rgba(212,175,106,.4);
+    color: var(--gold);
+  }
+  .hr-badge.nice { border-color: rgba(160,160,200,.4); color: rgba(180,180,220,.8); }
+  .hr-badge.polish { border-color: rgba(100,200,150,.3); color: rgba(120,220,160,.8); }
+  .hr-check {
+    width: 20px; height: 20px;
+    border: 1.5px solid rgba(212,175,106,.4);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all .2s;
+    flex-shrink: 0;
+  }
+  .hr-check.checked {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .hr-check.checked::after {
+    content: '✓';
+    font-size: .65rem;
+    color: var(--onyx);
+    font-weight: bold;
+  }
+  .hr-expand {
+    display: none;
+    padding: 0 18px 18px 18px;
+    border-top: 1px solid rgba(255,255,255,.06);
+  }
+  .hr-expand.open { display: block; }
+
+  .prompt-card {
+    background: rgba(12,42,36,.5);
+    border: 1px solid rgba(212,175,106,.2);
+    border-radius: 6px;
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .prompt-label {
+    font-size: .65rem;
+    letter-spacing: .15em;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .prompt-tag {
+    background: rgba(212,175,106,.12);
+    padding: 2px 7px;
+    border-radius: 3px;
+    color: rgba(212,175,106,.7);
+  }
+  .prompt-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: .95rem;
+    line-height: 1.65;
+    color: var(--ivory);
+  }
+  .prompt-text blockquote {
+    border-left: 2px solid rgba(212,175,106,.4);
+    padding-left: 14px;
+    margin: 10px 0;
+    font-style: italic;
+    color: rgba(244,239,227,.85);
+  }
+  .prompt-note {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(212,175,106,.07);
+    border-left: 2px solid var(--gold);
+    font-size: .8rem;
+    color: rgba(244,239,227,.75);
+    line-height: 1.5;
+    font-family: 'Jost', sans-serif;
+  }
+  .prompt-note strong { color: var(--gold); }
+  .gate-note {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(200,80,80,.08);
+    border-left: 2px solid rgba(220,100,100,.5);
+    font-size: .8rem;
+    color: rgba(244,239,227,.75);
+    line-height: 1.5;
+    font-family: 'Jost', sans-serif;
+  }
+  .gate-note strong { color: #e08080; }
+
+  /* ── BUILD LOG ── */
+  .log-grid { display: flex; flex-direction: column; gap: 12px; }
+
+  .log-entry {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .log-entry-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .log-prompt-name {
+    font-family: 'Cinzel', serif;
+    font-size: .72rem;
+    letter-spacing: .12em;
+    color: var(--gold);
+  }
+  .log-timestamp {
+    font-size: .75rem;
+    color: var(--muted);
+    flex: 1;
+  }
+  .log-checks { display: flex; gap: 8px; flex-wrap: wrap; }
+  .log-check-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: .72rem;
+    color: rgba(244,239,227,.6);
+    cursor: pointer;
+  }
+  .log-check-item input[type="checkbox"] {
+    accent-color: var(--gold);
+    width: 13px; height: 13px;
+  }
+
+  .log-field {
+    width: 100%;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 4px;
+    padding: 9px 12px;
+    color: var(--ivory);
+    font-family: 'Jost', sans-serif;
+    font-size: .82rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 60px;
+    margin-top: 8px;
+    outline: none;
+  }
+  .log-field:focus { border-color: rgba(212,175,106,.4); }
+  .log-field::placeholder { color: rgba(244,239,227,.25); }
+
+  .save-btn {
+    margin-top: 20px;
+    padding: 10px 24px;
+    background: var(--gold);
+    color: var(--onyx);
+    border: none;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-size: .75rem;
+    letter-spacing: .12em;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .save-btn:hover { background: var(--gold-light); }
+  .save-confirm { font-size: .75rem; color: var(--gold); margin-left: 12px; opacity: 0; transition: opacity .3s; }
+
+  /* ── RESOURCES ── */
+  .resource-section { margin-bottom: 32px; }
+  .resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+
+  .resource-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .resource-card-head {
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .resource-card-head h3 {
+    font-family: 'Cinzel', serif;
+    font-size: .72rem;
+    letter-spacing: .12em;
+    color: var(--gold);
+  }
+  .resource-card-head span {
+    font-size: .75rem;
+    color: var(--muted);
+    transition: transform .2s;
+  }
+  .resource-card-head.open span { transform: rotate(180deg); }
+  .resource-card-body {
+    display: none;
+    padding: 16px;
+  }
+  .resource-card-body.open { display: block; }
+  .resource-card-body p, .resource-card-body li {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: .9rem;
+    line-height: 1.65;
+    color: rgba(244,239,227,.85);
+  }
+  .resource-card-body ol, .resource-card-body ul {
+    padding-left: 18px;
+  }
+  .resource-card-body li { margin-bottom: 6px; }
+  .resource-card-body .sub-head {
+    font-family: 'Jost', sans-serif;
+    font-size: .68rem;
+    letter-spacing: .15em;
+    color: var(--gold);
+    margin: 14px 0 8px;
+  }
+
+  pre.code-block {
+    background: rgba(0,0,0,.3);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 4px;
+    padding: 12px;
+    font-size: .75rem;
+    color: rgba(244,239,227,.8);
+    overflow-x: auto;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'Courier New', monospace;
+    margin-top: 10px;
+  }
+
+  /* ── TRIAGE ── */
+  .triage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 28px; }
+
+  .triage-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 6px;
+    padding: 18px;
+  }
+  .triage-card .tc-label {
+    font-family: 'Cinzel', serif;
+    font-size: .65rem;
+    letter-spacing: .18em;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .triage-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ivory);
+    margin-bottom: 10px;
+  }
+  .triage-card p {
+    font-size: .82rem;
+    line-height: 1.6;
+    color: rgba(244,239,227,.7);
+    margin-bottom: 8px;
+  }
+  .triage-card .trigger {
+    font-size: .75rem;
+    padding: 7px 10px;
+    background: rgba(212,175,106,.08);
+    border-left: 2px solid rgba(212,175,106,.4);
+    color: rgba(244,239,227,.7);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .triage-card .tc-cut {
+    background: rgba(200,80,80,.08);
+    border-left: 2px solid rgba(200,80,80,.3);
+    color: rgba(244,239,227,.65);
+    font-size: .75rem;
+    padding: 7px 10px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .triage-card .tc-keep {
+    background: rgba(80,200,120,.06);
+    border-left: 2px solid rgba(80,200,120,.3);
+    color: rgba(244,239,227,.65);
+    font-size: .75rem;
+    padding: 7px 10px;
+    line-height: 1.5;
+  }
+
+  .never-cut-box {
+    background: rgba(212,175,106,.07);
+    border: 1px solid rgba(212,175,106,.25);
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-top: 8px;
+  }
+  .never-cut-box h3 {
+    font-family: 'Cinzel', serif;
+    font-size: .72rem;
+    letter-spacing: .15em;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .never-cut-box ul {
+    list-style: none;
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .never-cut-box li {
+    background: rgba(212,175,106,.1);
+    border: 1px solid rgba(212,175,106,.3);
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: .78rem;
+    color: var(--ivory);
+  }
+
+  /* ── JUDGING ── */
+  .judging-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .judging-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 6px;
+    padding: 18px;
+  }
+  .judging-card .j-num {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: rgba(212,175,106,.25);
+    margin-bottom: 4px;
+  }
+  .judging-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: .78rem;
+    letter-spacing: .12em;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .judging-card p {
+    font-size: .82rem;
+    line-height: 1.6;
+    color: rgba(244,239,227,.65);
+    margin-bottom: 8px;
+  }
+  .judging-card .pitch-point {
+    font-size: .78rem;
+    padding: 6px 10px;
+    background: rgba(212,175,106,.07);
+    border-left: 2px solid rgba(212,175,106,.3);
+    color: rgba(244,239,227,.8);
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+
+  /* Gold divider */
+  .gold-divider {
+    border: none;
+    border-top: 1px solid rgba(212,175,106,.2);
+    margin: 28px 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    nav { padding: 0 12px; }
+    .page { padding: 20px 14px; }
+    .countdown-band { padding: 20px 18px; }
+    .digit-num { font-size: 1.8rem; }
+    .hr-time { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-box">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="30" cy="28" rx="14" ry="8" stroke="#D4AF6A" stroke-width="1.2"/>
+      <path d="M16 28 Q10 20 16 12 Q22 6 30 10 Q38 6 44 12 Q50 20 44 28" stroke="#D4AF6A" stroke-width="1.2" fill="none"/>
+      <circle cx="30" cy="10" r="2.5" fill="#D4AF6A"/>
+      <path d="M22 44 Q30 52 38 44" stroke="#D4AF6A" stroke-width="1.2" fill="none"/>
+      <line x1="30" y1="36" x2="30" y2="44" stroke="#D4AF6A" stroke-width="1.2"/>
+      <path d="M8 48 Q18 42 30 40 Q42 42 52 48" stroke="#D4AF6A" stroke-width="1" fill="none" opacity=".4"/>
+    </svg>
+    <h1>SWAN SOCIETY</h1>
+    <p>Mission Control — Private</p>
+    <input type="password" id="pw-input" placeholder="PASSPHRASE" autocomplete="off">
+    <button class="gate-btn" onclick="checkPass()">ENTER</button>
+    <div class="gate-error" id="gate-err"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+<nav>
+  <div class="nav-logo">🐙 SWAN SOCIETY</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('schedule')">Schedule</button>
+    <button class="nav-tab" onclick="showPage('log')">Build Log</button>
+    <button class="nav-tab" onclick="showPage('resources')">Resources</button>
+    <button class="nav-tab" onclick="showPage('triage')">Triage</button>
+    <button class="nav-tab" onclick="showPage('judging')">Judging</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ SCHEDULE PAGE ══════════════════════════════ -->
+<div id="page-schedule" class="page active">
+
+  <div class="countdown-band">
+    <div>
+      <div class="countdown-label">HACKATHON COUNTDOWN</div>
+      <div class="countdown-title" id="countdown-status">Clock starts Sun 6/21 · 10:00 AM ET</div>
+      <div style="margin-top:8px;font-size:.78rem;color:rgba(244,239,227,.5)" id="current-block-label"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px">
+      <div class="countdown-digits" id="countdown-digits">
+        <div class="digit-block"><span class="digit-num" id="cd-d">--</span><div class="digit-unit">DAYS</div></div>
+        <div class="digit-sep">:</div>
+        <div class="digit-block"><span class="digit-num" id="cd-h">--</span><div class="digit-unit">HRS</div></div>
+        <div class="digit-sep">:</div>
+        <div class="digit-block"><span class="digit-num" id="cd-m">--</span><div class="digit-unit">MIN</div></div>
+        <div class="digit-sep">:</div>
+        <div class="digit-block"><span class="digit-num" id="cd-s">--</span><div class="digit-unit">SEC</div></div>
+      </div>
+      <div id="current-hr-badge" class="current-hr-badge" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="section-head">HOUR-BY-HOUR SCHEDULE</div>
+
+  <div class="schedule-grid" id="schedule-grid">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════ BUILD LOG PAGE ══════════════════════════════ -->
+<div id="page-log" class="page">
+
+  <div class="section-head">BUILD LOG — fill in as you go · auto-saved to browser</div>
+
+  <div class="log-grid" id="log-grid">
+    <!-- Rendered by JS -->
+  </div>
+
+  <div style="margin-top:20px;display:flex;align-items:center">
+    <button class="save-btn" onclick="saveLog()">SAVE LOG</button>
+    <span class="save-confirm" id="save-confirm">Saved ✓</span>
+  </div>
+
+  <hr class="gold-divider">
+
+  <div class="section-head">POST-BUILD REFLECTION</div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div>
+      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">WHAT WORKED BETTER THAN EXPECTED</div>
+      <textarea class="log-field" id="refl-1" placeholder="e.g. Groq response time was faster than anticipated…" style="min-height:72px"></textarea>
+    </div>
+    <div>
+      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">WHAT WAS HARDER THAN EXPECTED</div>
+      <textarea class="log-field" id="refl-2" placeholder="e.g. RLS policies took 45 min instead of 20…" style="min-height:72px"></textarea>
+    </div>
+    <div>
+      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">BIGGEST TRIAGE DECISION</div>
+      <textarea class="log-field" id="refl-3" placeholder="e.g. Invoked Scenario B at Hr 5 — pivoted to manual book entry…" style="min-height:72px"></textarea>
+    </div>
+    <div>
+      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">IF YOU HAD 6 MORE HOURS</div>
+      <textarea class="log-field" id="refl-4" placeholder="e.g. Would have implemented real-time vote animation…" style="min-height:72px"></textarea>
+    </div>
+    <div>
+      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">ONE THING TO DO DIFFERENTLY NEXT TIME</div>
+      <textarea class="log-field" id="refl-5" placeholder="" style="min-height:72px"></textarea>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;display:flex;align-items:center">
+    <button class="save-btn" onclick="saveLog()">SAVE ALL</button>
+    <span class="save-confirm" id="save-confirm-2">Saved ✓</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ RESOURCES PAGE ══════════════════════════════ -->
+<div id="page-resources" class="page">
+
+  <div class="section-head">CACHED RESOURCES</div>
+
+  <div class="resource-section">
+    <div class="resource-grid" id="resources-grid">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════ TRIAGE PAGE ══════════════════════════════ -->
+<div id="page-triage" class="page">
+
+  <div class="section-head">TRIAGE SCENARIOS — pre-decided. read before Hr 1.</div>
+
+  <div class="triage-grid">
+
+    <div class="triage-card">
+      <div class="tc-label">SCENARIO A — TARGET</div>
+      <h3>Full loop ships</h3>
+      <p>Dashboard → AI book suggestions → voting → RSVP → AI discussion questions → pricing. All wired to Supabase, all functional cold on a different device.</p>
+      <div class="tc-keep">This is the plan. Aim here.</div>
+    </div>
+
+    <div class="triage-card">
+      <div class="tc-label">SCENARIO B</div>
+      <h3>Book suggestion edge function broken</h3>
+      <div class="trigger">⏱ Invoke when: stuck >30 min past Hr 5 on the book suggestion edge function</div>
+      <div class="tc-cut">CUT: AI book suggestions. Replace with manual "host picks 3 books" flow.</div>
+      <div class="tc-keep">KEEP: voting, RSVP, discussion questions. Loop still works.</div>
+      <p style="margin-top:10px">Prompt: <em>"Remove the AI book suggestion edge function. Replace the book selection screen with a simple host-entry flow: the host types in up to 3 book titles and authors manually, one per card. Each card still has a vote button and the horizontal tally bar below."</em></p>
+    </div>
+
+    <div class="triage-card">
+      <div class="tc-label">SCENARIO C — LAST RESORT</div>
+      <h3>Discussion question generator broken</h3>
+      <p>DO NOT pivot easily — this is your differentiator. Exhaust in order:</p>
+      <div class="trigger">1. Simplify Groq prompt (strip criteria bullets)</div>
+      <div class="trigger">2. Increase edge function timeout to 15s</div>
+      <div class="trigger">3. Confirm GROQ_API_KEY is in Cloud → Secrets (not env vars)</div>
+      <div class="tc-cut">LAST RESORT (past Hr 11 only): cached fallback + "Regenerate" cycles questions randomly. Remove spinner. Never cut the screen entirely.</div>
+    </div>
+
+    <div class="triage-card">
+      <div class="tc-label">SCENARIO D</div>
+      <h3>Something breaks after deploy</h3>
+      <div class="trigger">Order: Revert → De-emphasize → Remove → Seed around</div>
+      <p>Revert via Lovable version history first — always. Then de-emphasize (grey out). Then remove. Then seed around the broken path. Do not spend Day 3 debugging a feature you could remove.</p>
+    </div>
+
+    <div class="triage-card">
+      <div class="tc-label">SCENARIO E</div>
+      <h3>Behind on Day 2 (nice-to-haves slip)</h3>
+      <div class="trigger">⏱ Invoke when: Hr 22 arrives and Prompts 12/13/14 were never sent</div>
+      <div class="tc-cut">SKIP: Prompts 12, 13, 14 (affiliate links, host package, rotation view)</div>
+      <div class="tc-keep">DO: Prompt 15 (polish) → seed demo data → deploy → cold judge test</div>
+    </div>
+
+  </div>
+
+  <div class="never-cut-box">
+    <h3>WHAT YOU NEVER CUT — regardless of scenario</h3>
+    <ul>
+      <li>Persistent navigation</li>
+      <li>Dashboard</li>
+      <li>Voting screen</li>
+      <li>RSVP screen</li>
+      <li>Discussion questions screen</li>
+      <li>Pricing screen</li>
+    </ul>
+  </div>
+
+  <hr class="gold-divider">
+  <div class="section-head">DECISION TREE</div>
+  <pre class="code-block">Build is stuck or broken
+│
+├── Is it the book suggestion feature?
+│   └── Stuck >30 min past Hr 5 → Scenario B (manual entry), move on
+│
+├── Is it the discussion question generator?
+│   ├── Try: simplify the prompt
+│   ├── Try: increase edge function timeout
+│   ├── Try: confirm GROQ_API_KEY is in Cloud → Secrets
+│   └── Still broken past Hr 11 → Scenario C last resort (cached fallback)
+│
+├── Is it something that broke after deploy?
+│   ├── First: revert to last known-good version
+│   ├── Then: de-emphasize the broken element
+│   ├── Then: remove it entirely
+│   └── Then: seed around it
+│
+└── Are you just behind on nice-to-haves?
+    └── Scenario E — skip 12/13/14, go straight to Prompt 15 + deploy</pre>
+
+</div>
+
+<!-- ══════════════════════════════ JUDGING PAGE ══════════════════════════════ -->
+<div id="page-judging" class="page">
+
+  <div class="section-head">JUDGING CRITERIA — map every answer to these four categories</div>
+
+  <div class="judging-grid">
+
+    <div class="judging-card">
+      <div class="j-num">01</div>
+      <h3>CREATIVITY</h3>
+      <p>Novel approach to the problem. Distinctive elements. Not just "ChatGPT wrapper."</p>
+      <div class="pitch-point">Swan Society: AI at two touchpoints (book selection + discussion questions) woven into a real-club workflow — not bolted on.</div>
+      <div class="pitch-point" style="margin-top:6px">The art deco design system makes it feel like a luxury product, not a productivity tool.</div>
+    </div>
+
+    <div class="judging-card">
+      <div class="j-num">02</div>
+      <h3>IMPACT</h3>
+      <p>Real problem. Real users. Measurable benefit.</p>
+      <div class="pitch-point">13M US book club members. Host burnout kills clubs — 60%+ dissolve within 2 years. Swan Society removes the admin so the host can just show up.</div>
+      <div class="pitch-point" style="margin-top:6px">Fable/Everand acquisition (June 2026) = platform consolidation = gap for a standalone, host-centric club tool right now.</div>
+    </div>
+
+    <div class="judging-card">
+      <div class="j-num">03</div>
+      <h3>EXECUTION & DESIGN</h3>
+      <p>Fully functional beginning-to-end. Polished. Works on live URL, cold, different device.</p>
+      <div class="pitch-point">Full loop: club creation → book voting → RSVP → AI discussion questions → pricing. All data in Supabase, persists on refresh.</div>
+      <div class="pitch-point" style="margin-top:6px">No demo mode. Real Groq calls. Realtime vote tallies. Mobile responsive.</div>
+    </div>
+
+    <div class="judging-card">
+      <div class="j-num">04</div>
+      <h3>FUTURE POTENTIAL</h3>
+      <p>Believable roadmap. Monetization path. Market sizing.</p>
+      <div class="pitch-point">Freemium ($5/mo Pro): unlimited clubs, host rotation, shareable recap cards, AI theme pairings.</div>
+      <div class="pitch-point" style="margin-top:6px">TAM ~$234M (13M members × $18/yr at 10% conversion). SAM ~$78M (4.3M tech-savvy members). SOM ~$7.8M yr-1.</div>
+      <div class="pitch-point" style="margin-top:6px">Host rotation handoff, venue suggestions, partner integrations (Bookshop.org) on roadmap.</div>
+    </div>
+
+  </div>
+
+  <hr class="gold-divider">
+  <div class="section-head">BEFORE YOU SUBMIT</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">
+    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
+      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Cold judge test passed (different device + network)
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
+      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Submission responses finalized with real screenshots/results
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
+      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Live URL included in submission (not localhost)
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
+      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Affiliate links click-tested
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
+      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Demo book is one of 3 fallback-eligible titles
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
+      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> GROQ_API_KEY confirmed in Cloud → Secrets
+    </label>
+  </div>
+
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ── PASSPHRASE ──
+const PASS = 'swansociety2026';
+function checkPass() {
+  const v = document.getElementById('pw-input').value.trim().toLowerCase().replace(/\s/g,'');
+  if (v === PASS) {
+    sessionStorage.setItem('mc_auth','1');
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('gate-err').textContent = 'Incorrect passphrase.';
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPass(); });
+if (sessionStorage.getItem('mc_auth') === '1') {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+// ── NAV ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── CLOCK START ──
+// Sun June 21 2026, 10:00 AM Eastern (UTC-4 in June)
+const CLOCK_START = new Date('2026-06-21T14:00:00Z'); // 10AM ET = 14:00 UTC
+const CLOCK_END   = new Date('2026-06-23T14:00:00Z'); // 48h later
+
+// ── SCHEDULE DATA ──
+const HOURS = [
+  {
+    id:'h1', label:'HR 1', time:'10:00 – 11:00 AM', title:'Project Setup',
+    badge:'BUILD', offsetHr:0, durationHr:1,
+    prompts:[
+      { name:'Prompt 1', tag:'CLAUDE → LOVABLE', text:'Claude action: <code>create_project</code> (name: "Swan Society"), then immediately send Prompt 2.' },
+      { name:'Prompt 2', tag:'CLAUDE → LOVABLE', text:'Send the master design system + auth prompt.', note:'⚠️ GATE: Do not send Prompt 3 until you\'ve eyeballed the live preview and confirmed auth is wired — this is the foundation everything else builds on. Pull get_diff before moving on.' },
+      { name:'Prompt 3', tag:'CLAUDE → LOVABLE', text:'Send the Supabase schema prompt (all 6 tables).', note:'⚠️ GATE: Claude pulls get_diff and confirms all 6 tables exist. Do not send Prompt 4 until confirmed.' },
+      { name:'Prompt 3a', tag:'CLAUDE → LOVABLE', text:'Send the Row-Level Security policies prompt.', gate:'⚠️ DO NOT SKIP: RLS is on by default. Without policies, every SELECT returns zero rows. Classic symptom: club is in DB but dashboard renders empty.' }
+    ]
+  },
+  {
+    id:'h23', label:'HR 2–3', time:'11:00 AM – 1:00 PM', title:'Club Creation + Dashboard',
+    badge:'BUILD', offsetHr:1, durationHr:2,
+    prompts:[
+      { name:'Prompt 4', tag:'CLAUDE → LOVABLE', text:'Send the first-run / club creation flow prompt.', note:'After sending: manually test the full path: sign up → welcome screen → fill in club name + genres → Create my club → confirm clubs row in Supabase → redirected to dashboard. Do not move to Prompt 5 until this works end to end.' },
+      { name:'Prompt 5', tag:'CLAUDE → LOVABLE', text:'Send the Club dashboard / home screen prompt.', note:'Dashboard must read from Supabase on mount — no hardcoded data. Confirm empty states show.' }
+    ]
+  },
+  {
+    id:'h35', label:'HR 3–5', time:'1:00 – 3:00 PM', title:'Book Suggestion + Voting',
+    badge:'BUILD', offsetHr:3, durationHr:2,
+    prompts:[
+      { name:'Prompt 6', tag:'CLAUDE → LOVABLE', text:'Send the book suggestion + voting screen prompt.', note:'Check: 3 cards showing, swap button works, vote tallies update live, cover image fallbacks (genre color) working.' },
+      { name:'Prompt 7', tag:'CLAUDE → LOVABLE + EDGE FN', text:'Send the book suggestion generator / backend wiring prompt (includes hardcoded book pool JSON).', note:'Architecture: client owns pool state; edge function writes descriptions only. Swap is client-side array lookup, no network call.' },
+      { name:'Prompt 7a', tag:'CLAUDE → LOVABLE', text:'Send the vote → book loop wiring prompt (persist candidates + select winner).', gate:'Without this, vote button has no real book row and winning book never becomes the active book on the dashboard.' }
+    ]
+  },
+  {
+    id:'h68', label:'HR 6–8', time:'3:00 – 6:00 PM', title:'RSVP Screen',
+    badge:'BUILD', offsetHr:5, durationHr:3,
+    prompts:[
+      { name:'Prompt 8', tag:'CLAUDE → LOVABLE', text:'Send the RSVP screen prompt.', note:'Check: reads from meetups table, upsert on button click, avatar list updates live via realtime, empty state if no meetup.' }
+    ]
+  },
+  {
+    id:'h911', label:'HR 9–11', time:'7:00 – 9:00 PM', title:'Discussion Questions (your differentiator)',
+    badge:'BUILD', offsetHr:8, durationHr:3,
+    prompts:[
+      { name:'⚠️ Infrastructure check', tag:'DO FIRST', text:'Confirm GROQ_API_KEY is in Supabase Cloud → Secrets (NOT just environment variables). Budget 20–30 min. The screen is useless without it.', gate:'Most common gotcha. The edge function silently fails if the key is in env vars instead of Secrets.' },
+      { name:'Prompt 9', tag:'CLAUDE → LOVABLE', text:'Send the discussion questions screen prompt.', note:'Check: Regenerate = primary action (gold), Save as PDF = de-emphasized ghost link, free tier soft lock below Q3.' },
+      { name:'Prompt 10', tag:'CLAUDE → LOVABLE + EDGE FN', text:'Send the discussion question generator / backend wiring prompt. Includes cached fallback for all 3 demo titles.', note:'Belt and suspenders: fallback in BOTH the client bundle AND the edge function. Client-side AbortController enforces 8s timeout regardless of Supabase state.' }
+    ]
+  },
+  {
+    id:'h1213', label:'HR 12–13', time:'Day 1 End', title:'Day 1 Triage',
+    badge:'CHECKPOINT', offsetHr:12, durationHr:2,
+    prompts:[
+      { name:'Checkpoint', tag:'REVIEW', text:'What\'s working end to end? What\'s broken or rough? What\'s the plan for tomorrow? Invoke a triage scenario if needed. Log it on the Build Log tab.' }
+    ]
+  },
+  {
+    id:'h1417', label:'HR 14–17', time:'Day 2 Morning', title:'Bug Fixes + Monetization',
+    badge:'BUILD', offsetHr:24, durationHr:4,
+    prompts:[
+      { name:'Prompt 11', tag:'CLAUDE → LOVABLE', text:'Send the pricing / upgrade screen prompt.', note:'Check: Upgrade CTA opens modal (not navigates away), waitlist email saves to Supabase, free tier CTA links to sign-up. Neither button is a dead end.' }
+    ]
+  },
+  {
+    id:'h1821', label:'HR 18–21', time:'Day 2 Midday', title:'Nice-to-Haves (skip if behind)',
+    badge:'OPTIONAL', offsetHr:28, durationHr:4,
+    prompts:[
+      { name:'Prompt 12', tag:'CLAUDE → LOVABLE', text:'Amazon affiliate "buy this book" link. Use placeholder link — swap in real ASINs from Affiliate Links doc.', note:'nice-to-have — skip if behind and go straight to Prompt 15' },
+      { name:'Prompt 13', tag:'CLAUDE → LOVABLE', text:'Host package screen (mockup-only, no live data needed).', note:'nice-to-have' },
+      { name:'Prompt 14', tag:'CLAUDE → LOVABLE', text:'Host rotation view (simple horizontal timeline).', note:'nice-to-have' }
+    ]
+  },
+  {
+    id:'h2225', label:'HR 22–25', time:'Day 2 Afternoon', title:'Polish Pass',
+    badge:'POLISH', offsetHr:33, durationHr:4,
+    prompts:[
+      { name:'Prompt 15a', tag:'CLAUDE → LOVABLE', text:'Empty states: review all screens for what they look like before any data exists. Add tasteful messaging consistent with the design system.' },
+      { name:'Prompt 15b', tag:'CLAUDE → LOVABLE', text:'Mobile responsiveness: book cards stack vertically, vote bars go full-width, RSVP buttons min 48px height, pricing cards stack, no horizontal overflow.' },
+      { name:'Prompt 15c', tag:'CLAUDE → LOVABLE', text:'Visual consistency: confirm spacing, gold dividers, and card styles match across all screens. Tighten anything inconsistent.' }
+    ]
+  },
+  {
+    id:'h2628', label:'HR 26–28', time:'Day 2 Evening', title:'Deploy + Cold Judge Test',
+    badge:'DEPLOY', offsetHr:37, durationHr:3,
+    prompts:[
+      { name:'Cold judge test', tag:'DO ON DIFFERENT DEVICE + NETWORK', text:'Open deployed URL cold. Sign up fresh → welcome screen → create club → dashboard loads correct club name → book suggestion screen: 3 cards load, swap works, vote persists → RSVP: buttons work, response saves → Discussion questions: Regenerate triggers Groq call, questions appear → Pricing: Upgrade CTA opens modal, waitlist submit works → Nav: can move between all screens without dead ends.', gate:'If anything fails here: Revert → De-emphasize → Remove. Do not debug for hours. See Triage Scenario D.' }
+    ]
+  },
+  {
+    id:'h3544', label:'HR 35–44', time:'Day 3 Morning', title:'Final QA + Submission',
+    badge:'SUBMIT', offsetHr:47, durationHr:2,
+    prompts:[
+      { name:'Final checklist', tag:'BEFORE SUBMIT', text:'Repeat cold judge test. Finalize submission responses with real screenshots/results. Include live URL in submission (not localhost). Submit before 10:00 AM ET.' }
+    ]
+  }
+];
+
+// ── LOG ENTRIES ──
+const LOG_ENTRIES = [
+  { id:'log-p1', label:'Prompt 1 — Project creation', checks:['Project created'] },
+  { id:'log-p2', label:'Prompt 2 — Design system + auth', checks:['Auth wired','Visual check ✓','get_diff pulled'] },
+  { id:'log-p3', label:'Prompt 3 — Supabase schema', checks:['clubs ✓','meetups ✓','books ✓','votes ✓','rsvps ✓','waitlist ✓'] },
+  { id:'log-p3a', label:'Prompt 3a — RLS policies', checks:['RLS on all tables','Host can read own data','Second user cannot read host data'] },
+  { id:'log-p4', label:'Prompt 4 — Club creation flow', checks:['Sign up → welcome screen ✓','Club created in DB ✓','Redirect to dashboard ✓'] },
+  { id:'log-p5', label:'Prompt 5 — Dashboard', checks:['Reads from Supabase ✓','Empty states show ✓'] },
+  { id:'log-p6', label:'Prompt 6 — Book suggestion screen', checks:['3 cards showing ✓','Swap works ✓','Vote tallies live ✓','Cover fallback ✓'] },
+  { id:'log-p7', label:'Prompt 7 — Book suggestion backend', checks:['Edge function deployed ✓','Descriptions from Groq ✓','Groq log snapshot ✓'] },
+  { id:'log-p7a', label:'Prompt 7a — Vote → book loop', checks:['Books upserted to DB ✓','Votes write uuid ✓','Close voting → is_active ✓','Dashboard updates ✓'] },
+  { id:'log-p8', label:'Prompt 8 — RSVP screen', checks:['Reads meetups table ✓','Upsert on click ✓','Avatar list live ✓','Empty state ✓'] },
+  { id:'log-p9', label:'Prompt 9 — Discussion questions screen', checks:['Regenerate = primary ✓','Save as PDF = ghost ✓','Soft lock below Q3 ✓'] },
+  { id:'log-p10', label:'Prompt 10 — Discussion question backend', checks:['Live Groq call ✓','8s timeout + fallback ✓','Demo book = fallback title ✓','Groq log snapshot ✓'] },
+  { id:'log-p11', label:'Prompt 11 — Pricing screen', checks:['Upgrade CTA → modal ✓','Waitlist saves to DB ✓','Free CTA → sign-up ✓'] },
+  { id:'log-p15', label:'Prompt 15 — Polish pass', checks:['Empty states ✓','Mobile ≤768px ✓','Visual consistency ✓'] },
+  { id:'log-deploy', label:'Deploy + Cold Judge Test', checks:['Deployed to live URL ✓','Cold test on different device ✓','All screens functional ✓'] }
+];
+
+// ── RESOURCES DATA ──
+const RESOURCES = [
+  {
+    id:'book-pool', title:'Book Pool (Prompt 7)',
+    content:`<div class="sub-head">MYSTERY / THRILLER</div>
+<ol>
+  <li>The Storm — Rachel Hawkins (January 2026)</li>
+  <li>My Husband's Wife — Alice Feeney (January 2026)</li>
+  <li>The First Time I Saw Him — Laura Dave (January 2026)</li>
+</ol>
+<div class="sub-head">HISTORICAL FICTION</div>
+<ol>
+  <li>Cool Machine — Colson Whitehead (2026)</li>
+  <li>Japanese Gothic — Kylie Lee Baker (2026)</li>
+  <li>The League of Lonely War Women — Andie Newton (2026)</li>
+</ol>
+<div class="sub-head">LITERARY FICTION</div>
+<ol>
+  <li>Go Gentle — Maria Semple (April 2026)</li>
+  <li>The Great Wherever — Shannon Sanders (April 2026)</li>
+</ol>
+<div class="sub-head">FANTASY</div>
+<ol>
+  <li>Daughter of Crows — Mark Lawrence (March 2026)</li>
+  <li>The Rainshadow Orphans — Naomi Ishiguro (May 2026)</li>
+</ol>
+<div class="sub-head">ROMANCE</div>
+<ol>
+  <li>You Won't Forget Me — Mazey Eddings (June 2026)</li>
+  <li>Just for the Cameras — Meghan Quinn (February 2026)</li>
+</ol>
+<p style="margin-top:12px;font-size:.78rem;color:rgba(244,239,227,.5)">⚠️ Re-verify pub dates are still within 6 months as of 6/21</p>`
+  },
+  {
+    id:'fallback-mhw', title:'Fallback Questions — My Husband\'s Wife',
+    content:`<p style="font-size:.75rem;color:var(--gold);margin-bottom:10px">ALICE FEENEY · Demo fallback #1</p>
+<ol>
+  <li>What personal experiences have led you to reflect on the complexities of marriage, similar to those explored in this book?</li>
+  <li>How did your perception of the main character change throughout the novel, and what triggered those shifts?</li>
+  <li>How does the author use secrets and lies to comment on the human condition — what did you take from it?</li>
+  <li>What role does jealousy play in the novel, and have you navigated something similar in your own life?</li>
+  <li>At what point did you start to question the narrator's reliability, and how did that change your reading experience?</li>
+  <li>What were your initial reactions to the final reveal — and have your thoughts about it changed since finishing?</li>
+  <li>How do the characters' past experiences shape their present decisions? What does that say about the impact of trauma?</li>
+  <li>What is the author conveying about the gray areas between right and wrong?</li>
+</ol>`
+  },
+  {
+    id:'fallback-ftish', title:'Fallback Questions — The First Time I Saw Him',
+    content:`<p style="font-size:.75rem;color:var(--gold);margin-bottom:10px">LAURA DAVE · Demo fallback #2</p>
+<ol>
+  <li>What memories did the book's portrayal of past relationships evoke in you, and how did that shape your reading?</li>
+  <li>How did the author's depiction of the protagonist's inner world affect your understanding of her choices?</li>
+  <li>Where in the story did your opinion of a key character shift — and what triggered that change?</li>
+  <li>What role does forgiveness play in the story? How did the characters' struggle with it relate to your own experiences?</li>
+  <li>How did the non-linear structure contribute to the emotional impact — what did you learn about the characters through it?</li>
+  <li>The ending raises questions about closure — what did you take away, and how did it leave you feeling?</li>
+  <li>What does the book say about the lasting weight of choices made under pressure?</li>
+  <li>If you could ask the author one question about where the story goes next, what would it be?</li>
+</ol>`
+  },
+  {
+    id:'fallback-storm', title:'Fallback Questions — The Storm',
+    content:`<p style="font-size:.75rem;color:var(--gold);margin-bottom:10px">RACHEL HAWKINS · Demo fallback #3</p>
+<ol>
+  <li>The novel opens in the middle of the storm — how did starting in crisis shape your experience of the characters before you knew them?</li>
+  <li>Gothic settings often function as a character themselves. How did the motel shape the tension, and what would the story lose without it?</li>
+  <li>The protagonist has already been accused once. How did that history color the way you read her choices throughout the book?</li>
+  <li>At what point did you start forming your own theory about what actually happened — and how many times did it change?</li>
+  <li>Secrets in small, isolated spaces tend to surface under pressure. Which revelation hit hardest for you, and why?</li>
+  <li>How did the ending sit with you — did it feel earned, or did it leave something unresolved?</li>
+  <li>What does the book suggest about how communities decide who to believe, and who to blame?</li>
+  <li>If the storm is a metaphor, what is it a metaphor for — and do you think the author intended that reading?</li>
+</ol>`
+  },
+  {
+    id:'affiliate', title:'Affiliate Links (Prompt 12)',
+    content:`<p style="font-size:.75rem;color:rgba(220,100,100,.8);margin-bottom:10px">⚠️ Click-test all links before demo day</p>
+<div class="sub-head">MY HUSBAND'S WIFE — Alice Feeney</div>
+<p>Paperback/Hardcover: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
+<p>Kindle: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
+<div class="sub-head">THE FIRST TIME I SAW HIM — Laura Dave</div>
+<p>Paperback/Hardcover: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
+<p>Kindle: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
+<div class="sub-head">THE STORM — Rachel Hawkins</div>
+<p>Paperback/Hardcover: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
+<p>Kindle: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
+<p style="margin-top:12px;font-size:.78rem;color:rgba(244,239,227,.5)">See Affiliate Links — Prompt 12.md for real ASINs. Swap placeholders before Prompt 12.</p>`
+  },
+  {
+    id:'supabase', title:'Supabase Schema Reference',
+    content:`<div class="sub-head">TABLES</div>
+<ul>
+  <li><strong>clubs</strong> — id, name, genres[], host_user_id, created_at</li>
+  <li><strong>meetups</strong> — id, club_id→clubs, date, time, location, created_at</li>
+  <li><strong>books</strong> — id, club_id→clubs, title, author, genre, pub_date, cover_url, is_active (bool), questions_generated (bool), created_at</li>
+  <li><strong>votes</strong> — id, club_id→clubs, book_id→books, user_id→auth.users, created_at · UNIQUE(club_id, user_id)</li>
+  <li><strong>rsvps</strong> — id, club_id→clubs, meetup_id→meetups, user_id→auth.users, response (yes/maybe/no), created_at · UNIQUE(meetup_id, user_id)</li>
+  <li><strong>waitlist</strong> — id, email UNIQUE, created_at</li>
+</ul>
+<div class="sub-head">GROQ</div>
+<ul>
+  <li>Model: <code>llama-3.3-70b-versatile</code></li>
+  <li>Temp: <code>0.7</code></li>
+  <li>Key: Cloud → Secrets → <code>GROQ_API_KEY</code> (NOT env vars)</li>
+</ul>
+<div class="sub-head">DEMO SEED CONSTRAINT</div>
+<p>Active book must be one of: My Husband's Wife · The First Time I Saw Him · The Storm</p>`
+  },
+  {
+    id:'design', title:'Design System Reference',
+    content:`<div class="sub-head">PALETTE</div>
+<ul>
+  <li>Emerald #0C2A24 · Garnet #3D0F1E · Navy #101935 · Onyx #1C1C1C</li>
+  <li>Gold #D4AF6A (single accent — line work, icons, dividers, highlights)</li>
+  <li>Ivory #F4EFE3 (content cards, negative space)</li>
+</ul>
+<div class="sub-head">TYPOGRAPHY</div>
+<ul>
+  <li>Headings: Cinzel — spaced capitals</li>
+  <li>Body: Jost — clean modern sans</li>
+  <li>Editorial/quotes: Cormorant Garamond</li>
+</ul>
+<div class="sub-head">MOTIFS</div>
+<ul>
+  <li>Sunburst/fan shapes, thin gold dividers, chevrons — used sparingly</li>
+  <li>Gold line-drawing icons (book, champagne glass, swan, feather) — no stock photos</li>
+  <li>No gradients except palette-specified</li>
+  <li>Every screen: one clear primary action</li>
+</ul>`
+  }
+];
+
+// ── INIT ──
+function init() {
+  renderSchedule();
+  renderLog();
+  renderResources();
+  startCountdown();
+  loadLog();
+}
+
+// ── RENDER SCHEDULE ──
+function renderSchedule() {
+  const grid = document.getElementById('schedule-grid');
+  grid.innerHTML = HOURS.map(h => `
+    <div class="hr-block" id="block-${h.id}">
+      <div class="hr-header" onclick="toggleBlock('${h.id}')">
+        <div class="hr-num">${h.label}</div>
+        <div class="hr-time">${h.time}</div>
+        <div class="hr-title">${h.title}</div>
+        <div class="hr-badge ${h.badge==='OPTIONAL'?'nice':h.badge==='POLISH'?'polish':''}">${h.badge}</div>
+        <div class="hr-check" id="check-${h.id}" onclick="toggleCheck('${h.id}', event)"></div>
+      </div>
+      <div class="hr-expand" id="expand-${h.id}">
+        ${h.prompts.map(p => `
+          <div class="prompt-card">
+            <div class="prompt-label">${p.name} <span class="prompt-tag">${p.tag}</span></div>
+            <div class="prompt-text">${p.text}</div>
+            ${p.note ? `<div class="prompt-note">${p.note}</div>` : ''}
+            ${p.gate ? `<div class="gate-note"><strong>⛔ GATE:</strong> ${p.gate}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Restore checks
+  const checks = JSON.parse(localStorage.getItem('mc_checks') || '{}');
+  Object.keys(checks).forEach(id => { if(checks[id]) markCheck(id, true); });
+}
+
+function toggleBlock(id) {
+  const exp = document.getElementById('expand-' + id);
+  exp.classList.toggle('open');
+}
+
+function toggleCheck(id, e) {
+  e.stopPropagation();
+  const el = document.getElementById('check-' + id);
+  const checked = !el.classList.contains('checked');
+  markCheck(id, checked);
+  const checks = JSON.parse(localStorage.getItem('mc_checks') || '{}');
+  checks[id] = checked;
+  localStorage.setItem('mc_checks', JSON.stringify(checks));
+}
+
+function markCheck(id, checked) {
+  const el = document.getElementById('check-' + id);
+  const block = document.getElementById('block-' + id);
+  if (!el || !block) return;
+  if (checked) {
+    el.classList.add('checked');
+    block.classList.add('done-block');
+  } else {
+    el.classList.remove('checked');
+    block.classList.remove('done-block');
+  }
+}
+
+// ── COUNTDOWN + ACTIVE BLOCK ──
+function startCountdown() {
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+
+function updateCountdown() {
+  const now = new Date();
+  const badge = document.getElementById('current-hr-badge');
+  const status = document.getElementById('countdown-status');
+  const blockLabel = document.getElementById('current-block-label');
+
+  if (now < CLOCK_START) {
+    const diff = CLOCK_START - now;
+    setDigits(diff);
+    status.textContent = 'Clock starts Sun 6/21 · 10:00 AM ET';
+    badge.style.display = 'none';
+    blockLabel.textContent = '';
+  } else if (now >= CLOCK_END) {
+    document.getElementById('cd-d').textContent = '00';
+    document.getElementById('cd-h').textContent = '00';
+    document.getElementById('cd-m').textContent = '00';
+    document.getElementById('cd-s').textContent = '00';
+    status.textContent = 'Hackathon complete — time to submit!';
+    badge.style.display = 'none';
+    blockLabel.textContent = '';
+  } else {
+    const diff = CLOCK_END - now;
+    setDigits(diff);
+    const elapsed = (now - CLOCK_START) / 3600000; // hours elapsed
+    status.textContent = 'Clock is running — 48 hours ending Tue 6/23 · 10:00 AM ET';
+
+    // Find current block
+    let cur = null;
+    HOURS.forEach(h => {
+      if (elapsed >= h.offsetHr && elapsed < h.offsetHr + h.durationHr) cur = h;
+    });
+    if (cur) {
+      badge.textContent = 'NOW: ' + cur.title;
+      badge.style.display = 'block';
+      blockLabel.textContent = cur.label + ' · ' + cur.time;
+      // highlight
+      document.querySelectorAll('.hr-block').forEach(b => b.classList.remove('active-block'));
+      const activeBlock = document.getElementById('block-' + cur.id);
+      if (activeBlock) {
+        activeBlock.classList.add('active-block');
+        // auto-open if first visit
+        const exp = document.getElementById('expand-' + cur.id);
+        if (exp && !exp.classList.contains('open')) exp.classList.add('open');
+      }
+    }
+  }
+}
+
+function setDigits(ms) {
+  const s = Math.floor(ms / 1000) % 60;
+  const m = Math.floor(ms / 60000) % 60;
+  const h = Math.floor(ms / 3600000) % 24;
+  const d = Math.floor(ms / 86400000);
+  document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
+  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+}
+
+// ── RENDER LOG ──
+function renderLog() {
+  const grid = document.getElementById('log-grid');
+  grid.innerHTML = LOG_ENTRIES.map(e => `
+    <div class="log-entry">
+      <div class="log-entry-head">
+        <div class="log-prompt-name">${e.label}</div>
+        <input type="text" class="log-timestamp" id="${e.id}-time" placeholder="time sent (e.g. 10:22 AM)" style="background:transparent;border:none;color:rgba(244,239,227,.4);font-size:.75rem;font-family:Jost,sans-serif;outline:none;max-width:160px">
+      </div>
+      <div class="log-checks">
+        ${e.checks.map((c,i) => `
+          <label class="log-check-item">
+            <input type="checkbox" id="${e.id}-chk-${i}" onchange="autoSaveLog()"> ${c}
+          </label>
+        `).join('')}
+      </div>
+      <textarea class="log-field" id="${e.id}-notes" placeholder="Notes, diff summary, issues…" oninput="autoSaveLog()"></textarea>
+    </div>
+  `).join('');
+}
+
+// ── LOG PERSISTENCE ──
+let saveTimer;
+function autoSaveLog() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveLog, 1500);
+}
+
+function saveLog() {
+  const data = {};
+  LOG_ENTRIES.forEach(e => {
+    data[e.id + '-time'] = document.getElementById(e.id + '-time')?.value || '';
+    data[e.id + '-notes'] = document.getElementById(e.id + '-notes')?.value || '';
+    e.checks.forEach((_,i) => {
+      data[e.id + '-chk-' + i] = document.getElementById(e.id + '-chk-' + i)?.checked || false;
+    });
+  });
+  // reflections
+  ['refl-1','refl-2','refl-3','refl-4','refl-5'].forEach(id => {
+    data[id] = document.getElementById(id)?.value || '';
+  });
+  localStorage.setItem('mc_log', JSON.stringify(data));
+
+  // Flash confirm
+  ['save-confirm','save-confirm-2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity = '1'; setTimeout(() => el.style.opacity = '0', 1800); }
+  });
+}
+
+function loadLog() {
+  const raw = localStorage.getItem('mc_log');
+  if (!raw) return;
+  const data = JSON.parse(raw);
+  Object.keys(data).forEach(k => {
+    const el = document.getElementById(k);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = data[k];
+    else el.value = data[k];
+  });
+}
+
+// ── RENDER RESOURCES ──
+function renderResources() {
+  const grid = document.getElementById('resources-grid');
+  grid.innerHTML = RESOURCES.map(r => `
+    <div class="resource-card">
+      <div class="resource-card-head" id="rh-${r.id}" onclick="toggleResource('${r.id}')">
+        <h3>${r.title}</h3>
+        <span>▼</span>
+      </div>
+      <div class="resource-card-body" id="rb-${r.id}">
+        ${r.content}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleResource(id) {
+  const head = document.getElementById('rh-' + id);
+  const body = document.getElementById('rb-' + id);
+  head.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+// Start if already authed
+if (sessionStorage.getItem('mc_auth') === '1') init();
+</script>
+</body>
+</html>
