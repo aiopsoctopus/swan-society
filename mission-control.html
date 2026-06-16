@@ -4,1382 +4,1106 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Swan Society — Mission Control</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --emerald: #0C2A24;
-    --garnet: #3D0F1E;
-    --navy: #101935;
-    --onyx: #1C1C1C;
-    --gold: #D4AF6A;
-    --gold-light: #e8c97e;
-    --ivory: #F4EFE3;
-    --ivory-dark: #ebe5d4;
-    --text: #2a2018;
-    --muted: #7a6e5e;
-    --success: #2d6a4f;
-    --warning: #8B5E00;
-  }
+:root {
+  --em: #0C2A24; --ga: #3D0F1E; --na: #101935; --on: #1C1C1C;
+  --go: #D4AF6A; --gl: #e8c97e; --iv: #F4EFE3; --ivd: #ebe5d4;
+  --tx: #2a2018; --mu: #7a6e5e;
+  --card: rgba(255,255,255,.045);
+  --border: rgba(255,255,255,.08);
+  --gold-border: rgba(212,175,106,.25);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Jost', sans-serif; background: #111; color: var(--iv); min-height: 100vh; font-size: 14px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* GATE */
+#gate { position: fixed; inset: 0; background: var(--em); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.gate-box { text-align: center; max-width: 340px; width: 90%; }
+.gate-logo { font-family: 'Cinzel', serif; font-size: .9rem; letter-spacing: .25em; color: var(--go); margin-bottom: 6px; }
+.gate-sub { font-family: 'Cormorant Garamond', serif; font-size: .9rem; color: rgba(244,239,227,.5); margin-bottom: 28px; font-style: italic; }
+.gate-input { width: 100%; padding: 11px 14px; background: rgba(255,255,255,.07); border: 1px solid var(--gold-border); border-radius: 3px; color: var(--iv); font-family: 'Jost'; font-size: .85rem; letter-spacing: .15em; text-align: center; outline: none; margin-bottom: 10px; }
+.gate-input::placeholder { opacity: .35; }
+.gate-btn { width: 100%; padding: 11px; background: var(--go); color: var(--on); border: none; border-radius: 3px; font-family: 'Cinzel'; font-size: .78rem; letter-spacing: .14em; cursor: pointer; }
+.gate-btn:hover { background: var(--gl); }
+.gate-err { font-size: .75rem; color: #e07070; margin-top: 8px; min-height: 16px; }
 
-  body {
-    font-family: 'Jost', sans-serif;
-    background: var(--onyx);
-    color: var(--ivory);
-    min-height: 100vh;
-  }
+/* LAYOUT */
+#app { display: none; }
+nav { position: sticky; top: 0; z-index: 100; background: rgba(12,42,36,.97); border-bottom: 1px solid var(--gold-border); display: flex; align-items: center; padding: 0 20px; backdrop-filter: blur(8px); gap: 0; }
+.nav-brand { font-family: 'Cinzel'; font-size: .68rem; letter-spacing: .2em; color: var(--go); padding: 15px 16px 15px 0; border-right: 1px solid var(--gold-border); margin-right: 4px; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 0; overflow-x: auto; flex: 1; }
+.nav-tab { padding: 15px 14px; font-size: .72rem; letter-spacing: .1em; color: rgba(244,239,227,.45); cursor: pointer; border: none; border-bottom: 2px solid transparent; background: none; transition: all .2s; white-space: nowrap; }
+.nav-tab:hover { color: var(--iv); }
+.nav-tab.active { color: var(--go); border-bottom-color: var(--go); }
 
-  /* ── PASSWORD GATE ── */
-  #gate {
-    position: fixed; inset: 0;
-    background: var(--emerald);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 9999;
-  }
-  .gate-box {
-    text-align: center;
-    max-width: 360px; width: 90%;
-  }
-  .gate-box svg { width: 60px; margin-bottom: 24px; }
-  .gate-box h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 1.4rem;
-    letter-spacing: .15em;
-    color: var(--gold);
-    margin-bottom: 6px;
-  }
-  .gate-box p {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1rem;
-    color: var(--ivory);
-    opacity: .7;
-    margin-bottom: 28px;
-  }
-  .gate-box input {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(255,255,255,.07);
-    border: 1px solid rgba(212,175,106,.35);
-    border-radius: 4px;
-    color: var(--ivory);
-    font-family: 'Jost', sans-serif;
-    font-size: .95rem;
-    letter-spacing: .12em;
-    text-align: center;
-    outline: none;
-    margin-bottom: 14px;
-  }
-  .gate-box input::placeholder { opacity: .4; }
-  .gate-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--gold);
-    color: var(--onyx);
-    border: none;
-    border-radius: 4px;
-    font-family: 'Cinzel', serif;
-    font-size: .85rem;
-    letter-spacing: .12em;
-    cursor: pointer;
-    transition: background .2s;
-  }
-  .gate-btn:hover { background: var(--gold-light); }
-  .gate-error { color: #e07070; font-size: .8rem; margin-top: 10px; min-height: 18px; }
+.page { display: none; padding: 28px 20px; max-width: 1140px; margin: 0 auto; }
+.page.active { display: block; }
 
-  /* ── MAIN LAYOUT ── */
-  #app { display: none; }
+/* TYPOGRAPHY */
+.sec-head { font-family: 'Cinzel'; font-size: .65rem; letter-spacing: .22em; color: var(--go); border-bottom: 1px solid var(--gold-border); padding-bottom: 8px; margin-bottom: 18px; }
+.subsec-head { font-family: 'Jost'; font-size: .62rem; letter-spacing: .18em; color: var(--go); margin: 14px 0 8px; text-transform: uppercase; }
+.gold-hr { border: none; border-top: 1px solid var(--gold-border); margin: 26px 0; }
 
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(12,42,36,.97);
-    border-bottom: 1px solid rgba(212,175,106,.25);
-    display: flex; align-items: center; gap: 0;
-    padding: 0 24px;
-    backdrop-filter: blur(8px);
-  }
-  .nav-logo {
-    font-family: 'Cinzel', serif;
-    font-size: .75rem;
-    letter-spacing: .18em;
-    color: var(--gold);
-    padding: 16px 20px 16px 0;
-    margin-right: 16px;
-    border-right: 1px solid rgba(212,175,106,.2);
-  }
-  .nav-tabs { display: flex; gap: 0; flex: 1; overflow-x: auto; }
-  .nav-tab {
-    padding: 16px 18px;
-    font-family: 'Jost', sans-serif;
-    font-size: .78rem;
-    letter-spacing: .1em;
-    color: rgba(244,239,227,.5);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all .2s;
-    white-space: nowrap;
-    background: none; border-top: none; border-left: none; border-right: none;
-  }
-  .nav-tab:hover { color: var(--ivory); }
-  .nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+/* CARDS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 5px; }
+.card-head { padding: 13px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.card-head h3 { font-family: 'Cinzel'; font-size: .68rem; letter-spacing: .14em; color: var(--go); }
+.card-head .toggle-icon { font-size: .7rem; color: var(--mu); transition: transform .2s; }
+.card-head.open .toggle-icon { transform: rotate(180deg); }
+.card-body { display: none; padding: 14px 16px; border-top: 1px solid var(--border); }
+.card-body.open { display: block; }
+.card-body p, .card-body li { font-size: .84rem; line-height: 1.65; color: rgba(244,239,227,.8); }
+.card-body ol, .card-body ul { padding-left: 18px; }
+.card-body li { margin-bottom: 5px; }
 
-  .page { display: none; padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
-  .page.active { display: block; }
+/* COUNTDOWN */
+.countdown-band {
+  background: linear-gradient(135deg, var(--em) 0%, var(--na) 100%);
+  border: 1px solid var(--gold-border);
+  border-radius: 6px; padding: 24px 28px; margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+}
+.cd-lhs .cd-label { font-family: 'Cinzel'; font-size: .62rem; letter-spacing: .2em; color: var(--go); margin-bottom: 6px; }
+.cd-lhs .cd-status { font-family: 'Cormorant Garamond'; font-size: 1.1rem; font-style: italic; }
+.cd-lhs .cd-block { font-size: .73rem; color: rgba(244,239,227,.45); margin-top: 4px; }
+.cd-digits { display: flex; gap: 12px; align-items: flex-end; }
+.cd-unit { text-align: center; }
+.cd-num { font-family: 'Cinzel'; font-size: 2rem; color: var(--go); display: block; line-height: 1; }
+.cd-lbl { font-size: .58rem; letter-spacing: .14em; color: rgba(244,239,227,.35); margin-top: 3px; }
+.cd-sep { font-family: 'Cinzel'; font-size: 1.6rem; color: rgba(212,175,106,.3); align-self: flex-start; margin-top: 2px; }
+.now-badge { background: var(--go); color: var(--on); border-radius: 3px; padding: 5px 12px; font-size: .7rem; letter-spacing: .08em; font-weight: 600; }
 
-  /* ── COUNTDOWN ── */
-  .countdown-band {
-    background: linear-gradient(135deg, var(--emerald), var(--navy));
-    border: 1px solid rgba(212,175,106,.3);
-    border-radius: 8px;
-    padding: 28px 32px;
-    margin-bottom: 28px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 20px;
-  }
-  .countdown-label {
-    font-family: 'Cinzel', serif;
-    font-size: .7rem;
-    letter-spacing: .2em;
-    color: var(--gold);
-    margin-bottom: 8px;
-  }
-  .countdown-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.4rem;
-    font-style: italic;
-    color: var(--ivory);
-  }
-  .countdown-digits {
-    display: flex; gap: 16px; align-items: flex-end;
-  }
-  .digit-block { text-align: center; }
-  .digit-num {
-    font-family: 'Cinzel', serif;
-    font-size: 2.4rem;
-    color: var(--gold);
-    line-height: 1;
-    display: block;
-  }
-  .digit-unit {
-    font-size: .68rem;
-    letter-spacing: .15em;
-    color: rgba(244,239,227,.45);
-    margin-top: 4px;
-  }
-  .digit-sep {
-    font-family: 'Cinzel', serif;
-    font-size: 2rem;
-    color: rgba(212,175,106,.4);
-    line-height: 1;
-    align-self: flex-start;
-    margin-top: 2px;
-  }
-  .current-hr-badge {
-    background: var(--gold);
-    color: var(--onyx);
-    border-radius: 4px;
-    padding: 6px 14px;
-    font-family: 'Jost', sans-serif;
-    font-size: .78rem;
-    font-weight: 500;
-    letter-spacing: .08em;
-  }
+/* SCHEDULE */
+.sched-grid { display: flex; flex-direction: column; gap: 6px; }
+.hr-block { border: 1px solid var(--border); border-radius: 5px; overflow: hidden; background: var(--card); }
+.hr-block.active { border-color: rgba(212,175,106,.45); background: rgba(212,175,106,.055); }
+.hr-block.done { opacity: .5; }
+.hr-head { display: flex; align-items: center; gap: 14px; padding: 12px 16px; cursor: pointer; user-select: none; }
+.hr-lbl { font-family: 'Cinzel'; font-size: .62rem; letter-spacing: .12em; color: var(--go); min-width: 52px; }
+.hr-time { font-size: .7rem; color: rgba(244,239,227,.35); min-width: 90px; }
+.hr-title { font-weight: 500; font-size: .84rem; flex: 1; }
+.hr-badge { font-size: .58rem; letter-spacing: .1em; padding: 2px 7px; border-radius: 2px; border: 1px solid var(--gold-border); color: var(--go); }
+.hr-badge.opt { border-color: rgba(150,150,200,.3); color: rgba(180,180,220,.7); }
+.hr-badge.pol { border-color: rgba(100,200,140,.25); color: rgba(120,200,150,.7); }
+.hr-badge.dep { border-color: rgba(200,160,80,.3); color: rgba(220,180,90,.8); }
+.hr-badge.sub { border-color: rgba(200,100,100,.3); color: rgba(220,120,120,.8); }
+.hr-check { width: 18px; height: 18px; border: 1.5px solid var(--gold-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all .15s; }
+.hr-check.done { background: var(--go); border-color: var(--go); }
+.hr-check.done::after { content: '✓'; font-size: .6rem; color: var(--on); font-weight: 700; }
+.hr-expand { display: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+.hr-expand.open { display: block; }
 
-  /* ── SCHEDULE ── */
-  .section-head {
-    font-family: 'Cinzel', serif;
-    font-size: .72rem;
-    letter-spacing: .2em;
-    color: var(--gold);
-    border-bottom: 1px solid rgba(212,175,106,.2);
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-    margin-top: 8px;
-  }
+/* PROMPTS inside schedule */
+.prompt-block { background: rgba(12,42,36,.55); border: 1px solid var(--gold-border); border-radius: 4px; padding: 14px; margin-bottom: 10px; }
+.prompt-block:last-child { margin-bottom: 0; }
+.p-label { font-size: .62rem; letter-spacing: .14em; color: var(--go); display: flex; align-items: center; gap: 7px; margin-bottom: 9px; font-family: 'Cinzel'; }
+.p-tag { background: rgba(212,175,106,.1); padding: 2px 6px; border-radius: 2px; font-size: .58rem; color: rgba(212,175,106,.65); }
+.p-body { font-family: 'Cormorant Garamond'; font-size: .92rem; line-height: 1.7; color: var(--iv); }
+.p-body blockquote { border-left: 2px solid rgba(212,175,106,.35); padding-left: 12px; margin: 9px 0; color: rgba(244,239,227,.88); font-style: italic; }
+.p-body code { font-size: .8rem; background: rgba(0,0,0,.3); padding: 1px 5px; border-radius: 2px; font-family: 'Courier New', mono; color: rgba(212,175,106,.9); }
+.p-body pre { background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.08); border-radius: 4px; padding: 11px; font-size: .75rem; color: rgba(244,239,227,.8); overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-family: 'Courier New', mono; margin: 9px 0; line-height: 1.55; }
+.p-note { margin-top: 8px; padding: 8px 11px; background: rgba(212,175,106,.07); border-left: 2px solid rgba(212,175,106,.4); font-size: .75rem; color: rgba(244,239,227,.7); line-height: 1.5; }
+.p-gate { margin-top: 8px; padding: 8px 11px; background: rgba(220,80,80,.07); border-left: 2px solid rgba(220,80,80,.4); font-size: .75rem; color: rgba(244,239,227,.7); line-height: 1.5; }
+.p-gate strong, .p-note strong { font-weight: 600; color: rgba(244,239,227,.95); }
 
-  .schedule-grid { display: flex; flex-direction: column; gap: 8px; }
+/* BUILD LOG */
+.log-grid { display: flex; flex-direction: column; gap: 10px; }
+.log-entry { background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 14px; }
+.log-entry-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.log-name { font-family: 'Cinzel'; font-size: .65rem; letter-spacing: .12em; color: var(--go); }
+.log-time-input { background: transparent; border: none; color: rgba(244,239,227,.35); font-size: .72rem; font-family: 'Jost'; outline: none; max-width: 160px; }
+.log-time-input::placeholder { color: rgba(244,239,227,.2); }
+.log-checks { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+.log-chk { display: flex; align-items: center; gap: 5px; font-size: .72rem; color: rgba(244,239,227,.55); cursor: pointer; }
+.log-chk input { accent-color: var(--go); width: 12px; height: 12px; }
+.log-ta { width: 100%; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 3px; padding: 8px 11px; color: var(--iv); font-family: 'Jost'; font-size: .8rem; line-height: 1.5; resize: vertical; min-height: 56px; outline: none; }
+.log-ta:focus { border-color: rgba(212,175,106,.35); }
+.log-ta::placeholder { color: rgba(244,239,227,.2); }
+.save-row { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+.save-btn { padding: 9px 22px; background: var(--go); color: var(--on); border: none; border-radius: 3px; font-family: 'Cinzel'; font-size: .7rem; letter-spacing: .12em; cursor: pointer; }
+.save-btn:hover { background: var(--gl); }
+.save-ok { font-size: .72rem; color: var(--go); opacity: 0; transition: opacity .3s; }
 
-  .hr-block {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.07);
-    border-radius: 6px;
-    overflow: hidden;
-    transition: border-color .2s;
-  }
-  .hr-block.active-block {
-    border-color: rgba(212,175,106,.5);
-    background: rgba(212,175,106,.06);
-  }
-  .hr-block.done-block {
-    opacity: .55;
-  }
-  .hr-header {
-    display: flex; align-items: center; gap: 16px;
-    padding: 14px 18px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .hr-num {
-    font-family: 'Cinzel', serif;
-    font-size: .7rem;
-    letter-spacing: .12em;
-    color: var(--gold);
-    opacity: .7;
-    min-width: 48px;
-  }
-  .hr-time {
-    font-size: .75rem;
-    color: rgba(244,239,227,.4);
-    min-width: 80px;
-  }
-  .hr-title {
-    font-family: 'Jost', sans-serif;
-    font-size: .88rem;
-    font-weight: 500;
-    flex: 1;
-  }
-  .hr-badge {
-    font-size: .65rem;
-    letter-spacing: .1em;
-    padding: 3px 8px;
-    border-radius: 3px;
-    border: 1px solid rgba(212,175,106,.4);
-    color: var(--gold);
-  }
-  .hr-badge.nice { border-color: rgba(160,160,200,.4); color: rgba(180,180,220,.8); }
-  .hr-badge.polish { border-color: rgba(100,200,150,.3); color: rgba(120,220,160,.8); }
-  .hr-check {
-    width: 20px; height: 20px;
-    border: 1.5px solid rgba(212,175,106,.4);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: all .2s;
-    flex-shrink: 0;
-  }
-  .hr-check.checked {
-    background: var(--gold);
-    border-color: var(--gold);
-  }
-  .hr-check.checked::after {
-    content: '✓';
-    font-size: .65rem;
-    color: var(--onyx);
-    font-weight: bold;
-  }
-  .hr-expand {
-    display: none;
-    padding: 0 18px 18px 18px;
-    border-top: 1px solid rgba(255,255,255,.06);
-  }
-  .hr-expand.open { display: block; }
+/* RESOURCES */
+.res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+.res-card { background: var(--card); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+.res-head { padding: 12px 15px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.res-head h3 { font-family: 'Cinzel'; font-size: .65rem; letter-spacing: .12em; color: var(--go); }
+.res-icon { font-size: .65rem; color: var(--mu); transition: transform .2s; }
+.res-head.open .res-icon { transform: rotate(180deg); }
+.res-body { display: none; padding: 13px 15px; border-top: 1px solid var(--border); }
+.res-body.open { display: block; }
+.res-body p, .res-body li { font-family: 'Cormorant Garamond'; font-size: .9rem; line-height: 1.65; color: rgba(244,239,227,.82); }
+.res-body ol, .res-body ul { padding-left: 17px; }
+.res-body li { margin-bottom: 5px; }
+.res-body .rsh { font-family: 'Jost'; font-size: .6rem; letter-spacing: .16em; color: var(--go); margin: 12px 0 7px; text-transform: uppercase; }
+.res-body code { font-size: .75rem; background: rgba(0,0,0,.3); padding: 2px 5px; border-radius: 2px; font-family: 'Courier New', mono; color: rgba(212,175,106,.9); word-break: break-all; }
+.res-body pre { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 3px; padding: 10px; font-size: .73rem; color: rgba(244,239,227,.8); overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-family: 'Courier New', mono; line-height: 1.5; margin: 8px 0; }
+.res-warn { margin-top: 10px; font-size: .73rem; padding: 7px 10px; background: rgba(220,100,80,.07); border-left: 2px solid rgba(220,100,80,.4); color: rgba(244,239,227,.65); line-height: 1.5; font-family: 'Jost'; }
+.res-ok { margin-top: 8px; font-size: .73rem; padding: 7px 10px; background: rgba(80,180,100,.06); border-left: 2px solid rgba(80,180,100,.35); color: rgba(244,239,227,.65); line-height: 1.5; font-family: 'Jost'; }
 
-  .prompt-card {
-    background: rgba(12,42,36,.5);
-    border: 1px solid rgba(212,175,106,.2);
-    border-radius: 6px;
-    padding: 16px;
-    margin-top: 12px;
-  }
-  .prompt-label {
-    font-size: .65rem;
-    letter-spacing: .15em;
-    color: var(--gold);
-    margin-bottom: 10px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .prompt-tag {
-    background: rgba(212,175,106,.12);
-    padding: 2px 7px;
-    border-radius: 3px;
-    color: rgba(212,175,106,.7);
-  }
-  .prompt-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: .95rem;
-    line-height: 1.65;
-    color: var(--ivory);
-  }
-  .prompt-text blockquote {
-    border-left: 2px solid rgba(212,175,106,.4);
-    padding-left: 14px;
-    margin: 10px 0;
-    font-style: italic;
-    color: rgba(244,239,227,.85);
-  }
-  .prompt-note {
-    margin-top: 10px;
-    padding: 10px 12px;
-    background: rgba(212,175,106,.07);
-    border-left: 2px solid var(--gold);
-    font-size: .8rem;
-    color: rgba(244,239,227,.75);
-    line-height: 1.5;
-    font-family: 'Jost', sans-serif;
-  }
-  .prompt-note strong { color: var(--gold); }
-  .gate-note {
-    margin-top: 10px;
-    padding: 10px 12px;
-    background: rgba(200,80,80,.08);
-    border-left: 2px solid rgba(220,100,100,.5);
-    font-size: .8rem;
-    color: rgba(244,239,227,.75);
-    line-height: 1.5;
-    font-family: 'Jost', sans-serif;
-  }
-  .gate-note strong { color: #e08080; }
+/* TRIAGE */
+.triage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.t-card { background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 16px; }
+.t-lbl { font-family: 'Cinzel'; font-size: .6rem; letter-spacing: .16em; color: var(--go); margin-bottom: 6px; }
+.t-card h3 { font-family: 'Cormorant Garamond'; font-size: 1rem; font-weight: 600; margin-bottom: 9px; }
+.t-card p { font-size: .8rem; line-height: 1.6; color: rgba(244,239,227,.65); margin-bottom: 7px; }
+.t-trigger { font-size: .73rem; padding: 6px 10px; background: rgba(212,175,106,.07); border-left: 2px solid rgba(212,175,106,.35); color: rgba(244,239,227,.65); line-height: 1.5; margin-bottom: 7px; }
+.t-cut { font-size: .73rem; padding: 6px 10px; background: rgba(200,70,70,.07); border-left: 2px solid rgba(200,70,70,.3); color: rgba(244,239,227,.62); line-height: 1.5; margin-bottom: 7px; }
+.t-keep { font-size: .73px; padding: 6px 10px; background: rgba(70,180,110,.06); border-left: 2px solid rgba(70,180,110,.3); color: rgba(244,239,227,.62); line-height: 1.5; font-size: .73rem; }
+.never-box { background: rgba(212,175,106,.06); border: 1px solid var(--gold-border); border-radius: 5px; padding: 16px 18px; }
+.never-box h3 { font-family: 'Cinzel'; font-size: .65rem; letter-spacing: .16em; color: var(--go); margin-bottom: 12px; }
+.never-box ul { list-style: none; display: flex; flex-wrap: wrap; gap: 7px; }
+.never-box li { background: rgba(212,175,106,.09); border: 1px solid var(--gold-border); border-radius: 3px; padding: 4px 11px; font-size: .76rem; }
+pre.dt { background: rgba(0,0,0,.3); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-size: .73rem; color: rgba(244,239,227,.75); line-height: 1.6; overflow-x: auto; white-space: pre-wrap; font-family: 'Courier New', mono; }
 
-  /* ── BUILD LOG ── */
-  .log-grid { display: flex; flex-direction: column; gap: 12px; }
+/* JUDGING */
+.j-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.j-card { background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 16px; }
+.j-num { font-family: 'Cinzel'; font-size: 1.6rem; color: rgba(212,175,106,.2); margin-bottom: 3px; }
+.j-card h3 { font-family: 'Cinzel'; font-size: .7rem; letter-spacing: .13em; color: var(--go); margin-bottom: 9px; }
+.j-card p { font-size: .78rem; line-height: 1.6; color: rgba(244,239,227,.6); margin-bottom: 7px; }
+.j-pt { font-size: .75rem; padding: 6px 10px; background: rgba(212,175,106,.07); border-left: 2px solid rgba(212,175,106,.3); color: rgba(244,239,227,.78); line-height: 1.5; margin-top: 5px; }
+.checklist { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.cl-item { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 11px 13px; cursor: pointer; font-size: .79rem; color: rgba(244,239,227,.7); }
+.cl-item input { accent-color: var(--go); width: 15px; height: 15px; flex-shrink: 0; }
 
-  .log-entry {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 6px;
-    padding: 16px;
-  }
-  .log-entry-head {
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
-  .log-prompt-name {
-    font-family: 'Cinzel', serif;
-    font-size: .72rem;
-    letter-spacing: .12em;
-    color: var(--gold);
-  }
-  .log-timestamp {
-    font-size: .75rem;
-    color: var(--muted);
-    flex: 1;
-  }
-  .log-checks { display: flex; gap: 8px; flex-wrap: wrap; }
-  .log-check-item {
-    display: flex; align-items: center; gap: 5px;
-    font-size: .72rem;
-    color: rgba(244,239,227,.6);
-    cursor: pointer;
-  }
-  .log-check-item input[type="checkbox"] {
-    accent-color: var(--gold);
-    width: 13px; height: 13px;
-  }
+/* DEMO SETUP */
+.demo-band { background: rgba(61,15,30,.35); border: 1px solid rgba(212,175,106,.2); border-radius: 5px; padding: 16px 18px; margin-bottom: 20px; }
+.demo-band h3 { font-family: 'Cinzel'; font-size: .65rem; letter-spacing: .14em; color: var(--go); margin-bottom: 12px; }
+.demo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.demo-item .di-label { font-size: .62rem; letter-spacing: .14em; color: rgba(212,175,106,.6); margin-bottom: 4px; font-family: 'Cinzel'; }
+.demo-item .di-val { font-size: .82rem; color: var(--iv); }
 
-  .log-field {
-    width: 100%;
-    background: rgba(255,255,255,.05);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 4px;
-    padding: 9px 12px;
-    color: var(--ivory);
-    font-family: 'Jost', sans-serif;
-    font-size: .82rem;
-    line-height: 1.5;
-    resize: vertical;
-    min-height: 60px;
-    margin-top: 8px;
-    outline: none;
-  }
-  .log-field:focus { border-color: rgba(212,175,106,.4); }
-  .log-field::placeholder { color: rgba(244,239,227,.25); }
+/* WIRED TABLE */
+table.wd { width: 100%; border-collapse: collapse; font-size: .78rem; }
+table.wd th { font-family: 'Cinzel'; font-size: .6rem; letter-spacing: .12em; color: var(--go); text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--gold-border); }
+table.wd td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; color: rgba(244,239,227,.72); line-height: 1.4; }
+table.wd tr:hover td { background: rgba(255,255,255,.02); }
+.wd-wired { color: #6fdf8a; font-size: .65rem; padding: 2px 7px; background: rgba(80,200,100,.1); border-radius: 2px; }
+.wd-mock { color: #d4a44a; font-size: .65rem; padding: 2px 7px; background: rgba(200,160,60,.1); border-radius: 2px; }
+.wd-tbd { color: rgba(244,239,227,.35); font-size: .65rem; padding: 2px 7px; background: rgba(255,255,255,.05); border-radius: 2px; }
 
-  .save-btn {
-    margin-top: 20px;
-    padding: 10px 24px;
-    background: var(--gold);
-    color: var(--onyx);
-    border: none;
-    border-radius: 4px;
-    font-family: 'Cinzel', serif;
-    font-size: .75rem;
-    letter-spacing: .12em;
-    cursor: pointer;
-    transition: background .2s;
-  }
-  .save-btn:hover { background: var(--gold-light); }
-  .save-confirm { font-size: .75rem; color: var(--gold); margin-left: 12px; opacity: 0; transition: opacity .3s; }
+/* RISK TABLE */
+table.risk { width: 100%; border-collapse: collapse; font-size: .76rem; }
+table.risk th { font-family: 'Cinzel'; font-size: .58rem; letter-spacing: .12em; color: var(--go); text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--gold-border); }
+table.risk td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; color: rgba(244,239,227,.68); line-height: 1.45; }
+.risk-h { color: #e08080; font-weight: 600; }
+.risk-m { color: #d4a44a; font-weight: 600; }
+.risk-l { color: rgba(244,239,227,.4); }
 
-  /* ── RESOURCES ── */
-  .resource-section { margin-bottom: 32px; }
-  .resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-
-  .resource-card {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .resource-card-head {
-    padding: 14px 16px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,.06);
-  }
-  .resource-card-head h3 {
-    font-family: 'Cinzel', serif;
-    font-size: .72rem;
-    letter-spacing: .12em;
-    color: var(--gold);
-  }
-  .resource-card-head span {
-    font-size: .75rem;
-    color: var(--muted);
-    transition: transform .2s;
-  }
-  .resource-card-head.open span { transform: rotate(180deg); }
-  .resource-card-body {
-    display: none;
-    padding: 16px;
-  }
-  .resource-card-body.open { display: block; }
-  .resource-card-body p, .resource-card-body li {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: .9rem;
-    line-height: 1.65;
-    color: rgba(244,239,227,.85);
-  }
-  .resource-card-body ol, .resource-card-body ul {
-    padding-left: 18px;
-  }
-  .resource-card-body li { margin-bottom: 6px; }
-  .resource-card-body .sub-head {
-    font-family: 'Jost', sans-serif;
-    font-size: .68rem;
-    letter-spacing: .15em;
-    color: var(--gold);
-    margin: 14px 0 8px;
-  }
-
-  pre.code-block {
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 4px;
-    padding: 12px;
-    font-size: .75rem;
-    color: rgba(244,239,227,.8);
-    overflow-x: auto;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-break: break-word;
-    font-family: 'Courier New', monospace;
-    margin-top: 10px;
-  }
-
-  /* ── TRIAGE ── */
-  .triage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 28px; }
-
-  .triage-card {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 6px;
-    padding: 18px;
-  }
-  .triage-card .tc-label {
-    font-family: 'Cinzel', serif;
-    font-size: .65rem;
-    letter-spacing: .18em;
-    color: var(--gold);
-    margin-bottom: 6px;
-  }
-  .triage-card h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--ivory);
-    margin-bottom: 10px;
-  }
-  .triage-card p {
-    font-size: .82rem;
-    line-height: 1.6;
-    color: rgba(244,239,227,.7);
-    margin-bottom: 8px;
-  }
-  .triage-card .trigger {
-    font-size: .75rem;
-    padding: 7px 10px;
-    background: rgba(212,175,106,.08);
-    border-left: 2px solid rgba(212,175,106,.4);
-    color: rgba(244,239,227,.7);
-    line-height: 1.5;
-    margin-bottom: 8px;
-  }
-  .triage-card .tc-cut {
-    background: rgba(200,80,80,.08);
-    border-left: 2px solid rgba(200,80,80,.3);
-    color: rgba(244,239,227,.65);
-    font-size: .75rem;
-    padding: 7px 10px;
-    line-height: 1.5;
-    margin-bottom: 8px;
-  }
-  .triage-card .tc-keep {
-    background: rgba(80,200,120,.06);
-    border-left: 2px solid rgba(80,200,120,.3);
-    color: rgba(244,239,227,.65);
-    font-size: .75rem;
-    padding: 7px 10px;
-    line-height: 1.5;
-  }
-
-  .never-cut-box {
-    background: rgba(212,175,106,.07);
-    border: 1px solid rgba(212,175,106,.25);
-    border-radius: 6px;
-    padding: 18px 20px;
-    margin-top: 8px;
-  }
-  .never-cut-box h3 {
-    font-family: 'Cinzel', serif;
-    font-size: .72rem;
-    letter-spacing: .15em;
-    color: var(--gold);
-    margin-bottom: 12px;
-  }
-  .never-cut-box ul {
-    list-style: none;
-    display: flex; flex-wrap: wrap; gap: 8px;
-  }
-  .never-cut-box li {
-    background: rgba(212,175,106,.1);
-    border: 1px solid rgba(212,175,106,.3);
-    border-radius: 4px;
-    padding: 5px 12px;
-    font-size: .78rem;
-    color: var(--ivory);
-  }
-
-  /* ── JUDGING ── */
-  .judging-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
-  .judging-card {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 6px;
-    padding: 18px;
-  }
-  .judging-card .j-num {
-    font-family: 'Cinzel', serif;
-    font-size: 1.8rem;
-    color: rgba(212,175,106,.25);
-    margin-bottom: 4px;
-  }
-  .judging-card h3 {
-    font-family: 'Cinzel', serif;
-    font-size: .78rem;
-    letter-spacing: .12em;
-    color: var(--gold);
-    margin-bottom: 10px;
-  }
-  .judging-card p {
-    font-size: .82rem;
-    line-height: 1.6;
-    color: rgba(244,239,227,.65);
-    margin-bottom: 8px;
-  }
-  .judging-card .pitch-point {
-    font-size: .78rem;
-    padding: 6px 10px;
-    background: rgba(212,175,106,.07);
-    border-left: 2px solid rgba(212,175,106,.3);
-    color: rgba(244,239,227,.8);
-    line-height: 1.5;
-    margin-top: 4px;
-  }
-
-  /* Gold divider */
-  .gold-divider {
-    border: none;
-    border-top: 1px solid rgba(212,175,106,.2);
-    margin: 28px 0;
-  }
-
-  /* Responsive */
-  @media (max-width: 600px) {
-    nav { padding: 0 12px; }
-    .page { padding: 20px 14px; }
-    .countdown-band { padding: 20px 18px; }
-    .digit-num { font-size: 1.8rem; }
-    .hr-time { display: none; }
-  }
+@media (max-width: 580px) {
+  .page { padding: 18px 12px; }
+  .countdown-band { padding: 18px 16px; }
+  .cd-num { font-size: 1.5rem; }
+  .hr-time { display: none; }
+  nav { padding: 0 12px; }
+}
 </style>
 </head>
 <body>
 
-<!-- PASSWORD GATE -->
+<!-- GATE -->
 <div id="gate">
   <div class="gate-box">
-    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="30" cy="28" rx="14" ry="8" stroke="#D4AF6A" stroke-width="1.2"/>
-      <path d="M16 28 Q10 20 16 12 Q22 6 30 10 Q38 6 44 12 Q50 20 44 28" stroke="#D4AF6A" stroke-width="1.2" fill="none"/>
-      <circle cx="30" cy="10" r="2.5" fill="#D4AF6A"/>
-      <path d="M22 44 Q30 52 38 44" stroke="#D4AF6A" stroke-width="1.2" fill="none"/>
-      <line x1="30" y1="36" x2="30" y2="44" stroke="#D4AF6A" stroke-width="1.2"/>
-      <path d="M8 48 Q18 42 30 40 Q42 42 52 48" stroke="#D4AF6A" stroke-width="1" fill="none" opacity=".4"/>
-    </svg>
-    <h1>SWAN SOCIETY</h1>
-    <p>Mission Control — Private</p>
-    <input type="password" id="pw-input" placeholder="PASSPHRASE" autocomplete="off">
+    <div class="gate-logo">SWAN SOCIETY</div>
+    <div class="gate-sub">Mission Control — Private</div>
+    <input class="gate-input" type="password" id="pw" placeholder="PASSPHRASE" autocomplete="off">
     <button class="gate-btn" onclick="checkPass()">ENTER</button>
-    <div class="gate-error" id="gate-err"></div>
+    <div class="gate-err" id="gate-err"></div>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app">
-
 <nav>
-  <div class="nav-logo">🐙 SWAN SOCIETY</div>
+  <div class="nav-brand">🐙 MISSION CONTROL</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('schedule')">Schedule</button>
-    <button class="nav-tab" onclick="showPage('log')">Build Log</button>
-    <button class="nav-tab" onclick="showPage('resources')">Resources</button>
-    <button class="nav-tab" onclick="showPage('triage')">Triage</button>
-    <button class="nav-tab" onclick="showPage('judging')">Judging</button>
+    <button class="nav-tab active" onclick="nav(this,'schedule')">Schedule</button>
+    <button class="nav-tab" onclick="nav(this,'log')">Build Log</button>
+    <button class="nav-tab" onclick="nav(this,'prompts')">Full Prompts</button>
+    <button class="nav-tab" onclick="nav(this,'resources')">Resources</button>
+    <button class="nav-tab" onclick="nav(this,'demo')">Demo Setup</button>
+    <button class="nav-tab" onclick="nav(this,'triage')">Triage</button>
+    <button class="nav-tab" onclick="nav(this,'judging')">Judging</button>
   </div>
 </nav>
 
-<!-- ══════════════════════════════ SCHEDULE PAGE ══════════════════════════════ -->
+<!-- ═══ SCHEDULE ═══ -->
 <div id="page-schedule" class="page active">
-
   <div class="countdown-band">
-    <div>
-      <div class="countdown-label">HACKATHON COUNTDOWN</div>
-      <div class="countdown-title" id="countdown-status">Clock starts Sun 6/21 · 10:00 AM ET</div>
-      <div style="margin-top:8px;font-size:.78rem;color:rgba(244,239,227,.5)" id="current-block-label"></div>
+    <div class="cd-lhs">
+      <div class="cd-label">HACKATHON COUNTDOWN</div>
+      <div class="cd-status" id="cd-status">Clock starts Sun 6/21 · 10:00 AM ET</div>
+      <div class="cd-block" id="cd-block"></div>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px">
-      <div class="countdown-digits" id="countdown-digits">
-        <div class="digit-block"><span class="digit-num" id="cd-d">--</span><div class="digit-unit">DAYS</div></div>
-        <div class="digit-sep">:</div>
-        <div class="digit-block"><span class="digit-num" id="cd-h">--</span><div class="digit-unit">HRS</div></div>
-        <div class="digit-sep">:</div>
-        <div class="digit-block"><span class="digit-num" id="cd-m">--</span><div class="digit-unit">MIN</div></div>
-        <div class="digit-sep">:</div>
-        <div class="digit-block"><span class="digit-num" id="cd-s">--</span><div class="digit-unit">SEC</div></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+      <div class="cd-digits">
+        <div class="cd-unit"><span class="cd-num" id="cd-d">--</span><div class="cd-lbl">DAYS</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" id="cd-h">--</span><div class="cd-lbl">HRS</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" id="cd-m">--</span><div class="cd-lbl">MIN</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" id="cd-s">--</span><div class="cd-lbl">SEC</div></div>
       </div>
-      <div id="current-hr-badge" class="current-hr-badge" style="display:none"></div>
+      <div id="now-badge" class="now-badge" style="display:none"></div>
     </div>
   </div>
-
-  <div class="section-head">HOUR-BY-HOUR SCHEDULE</div>
-
-  <div class="schedule-grid" id="schedule-grid">
-    <!-- Rendered by JS -->
-  </div>
+  <div class="sec-head">HOUR-BY-HOUR SCHEDULE — click any block to expand</div>
+  <div class="sched-grid" id="sched-grid"></div>
 </div>
 
-<!-- ══════════════════════════════ BUILD LOG PAGE ══════════════════════════════ -->
+<!-- ═══ BUILD LOG ═══ -->
 <div id="page-log" class="page">
-
-  <div class="section-head">BUILD LOG — fill in as you go · auto-saved to browser</div>
-
-  <div class="log-grid" id="log-grid">
-    <!-- Rendered by JS -->
+  <div class="sec-head">BUILD LOG — auto-saves to browser · becomes your Substack skeleton</div>
+  <div class="log-grid" id="log-grid"></div>
+  <hr class="gold-hr">
+  <div class="sec-head">POST-BUILD REFLECTION</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div><div class="subsec-head" style="margin-top:0">What worked better than expected</div><textarea class="log-ta" id="refl1" style="min-height:70px" placeholder="e.g. Groq response time was much faster than expected…" oninput="autoSave()"></textarea></div>
+    <div><div class="subsec-head">What was harder than expected</div><textarea class="log-ta" id="refl2" style="min-height:70px" placeholder="e.g. RLS policies took 45 min instead of 20…" oninput="autoSave()"></textarea></div>
+    <div><div class="subsec-head">Biggest triage decision made</div><textarea class="log-ta" id="refl3" style="min-height:70px" placeholder="e.g. Invoked Scenario B at Hr 5 — pivoted to manual book entry…" oninput="autoSave()"></textarea></div>
+    <div><div class="subsec-head">If you had 6 more hours</div><textarea class="log-ta" id="refl4" style="min-height:70px" oninput="autoSave()"></textarea></div>
+    <div><div class="subsec-head">One thing to do differently next time</div><textarea class="log-ta" id="refl5" style="min-height:70px" oninput="autoSave()"></textarea></div>
   </div>
-
-  <div style="margin-top:20px;display:flex;align-items:center">
-    <button class="save-btn" onclick="saveLog()">SAVE LOG</button>
-    <span class="save-confirm" id="save-confirm">Saved ✓</span>
-  </div>
-
-  <hr class="gold-divider">
-
-  <div class="section-head">POST-BUILD REFLECTION</div>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <div>
-      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">WHAT WORKED BETTER THAN EXPECTED</div>
-      <textarea class="log-field" id="refl-1" placeholder="e.g. Groq response time was faster than anticipated…" style="min-height:72px"></textarea>
-    </div>
-    <div>
-      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">WHAT WAS HARDER THAN EXPECTED</div>
-      <textarea class="log-field" id="refl-2" placeholder="e.g. RLS policies took 45 min instead of 20…" style="min-height:72px"></textarea>
-    </div>
-    <div>
-      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">BIGGEST TRIAGE DECISION</div>
-      <textarea class="log-field" id="refl-3" placeholder="e.g. Invoked Scenario B at Hr 5 — pivoted to manual book entry…" style="min-height:72px"></textarea>
-    </div>
-    <div>
-      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">IF YOU HAD 6 MORE HOURS</div>
-      <textarea class="log-field" id="refl-4" placeholder="e.g. Would have implemented real-time vote animation…" style="min-height:72px"></textarea>
-    </div>
-    <div>
-      <div style="font-size:.75rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">ONE THING TO DO DIFFERENTLY NEXT TIME</div>
-      <textarea class="log-field" id="refl-5" placeholder="" style="min-height:72px"></textarea>
-    </div>
-  </div>
-
-  <div style="margin-top:20px;display:flex;align-items:center">
+  <div class="save-row">
     <button class="save-btn" onclick="saveLog()">SAVE ALL</button>
-    <span class="save-confirm" id="save-confirm-2">Saved ✓</span>
+    <span class="save-ok" id="save-ok">Saved ✓</span>
   </div>
 </div>
 
-<!-- ══════════════════════════════ RESOURCES PAGE ══════════════════════════════ -->
+<!-- ═══ FULL PROMPTS ═══ -->
+<div id="page-prompts" class="page">
+  <div class="sec-head">FULL PROMPT LIBRARY — copy-paste ready · all 15 prompts + 3a + 7a</div>
+  <div id="prompts-full"></div>
+</div>
+
+<!-- ═══ RESOURCES ═══ -->
 <div id="page-resources" class="page">
-
-  <div class="section-head">CACHED RESOURCES</div>
-
-  <div class="resource-section">
-    <div class="resource-grid" id="resources-grid">
-      <!-- Rendered by JS -->
-    </div>
-  </div>
-
+  <div class="sec-head">CACHED RESOURCES — everything you need without opening the folder</div>
+  <div class="res-grid" id="res-grid"></div>
 </div>
 
-<!-- ══════════════════════════════ TRIAGE PAGE ══════════════════════════════ -->
-<div id="page-triage" class="page">
+<!-- ═══ DEMO SETUP ═══ -->
+<div id="page-demo" class="page">
+  <div class="sec-head">DEMO SETUP — seed this before judging</div>
 
-  <div class="section-head">TRIAGE SCENARIOS — pre-decided. read before Hr 1.</div>
-
-  <div class="triage-grid">
-
-    <div class="triage-card">
-      <div class="tc-label">SCENARIO A — TARGET</div>
-      <h3>Full loop ships</h3>
-      <p>Dashboard → AI book suggestions → voting → RSVP → AI discussion questions → pricing. All wired to Supabase, all functional cold on a different device.</p>
-      <div class="tc-keep">This is the plan. Aim here.</div>
+  <div class="demo-band">
+    <h3>DEMO CLUB — GREEN LIGHT BOOK CLUB</h3>
+    <div class="demo-grid">
+      <div class="demo-item"><div class="di-label">CLUB NAME</div><div class="di-val">Green Light Book Club</div></div>
+      <div class="demo-item"><div class="di-label">GENRES</div><div class="di-val">Mystery/Thriller + Romance</div></div>
+      <div class="demo-item"><div class="di-label">MEMBERS</div><div class="di-val">Daisy B. · Jordan V. · Nicki C. · Jane E. · Cathy E.</div></div>
+      <div class="demo-item"><div class="di-label">DEMO ACCOUNT</div><div class="di-val">demo@swansociety.app · (set pw at Hr 1)</div></div>
+      <div class="demo-item"><div class="di-label">ACTIVE BOOK</div><div class="di-val">My Husband's Wife — Alice Feeney (or The First Time I Saw Him)</div></div>
+      <div class="demo-item"><div class="di-label">WHY THESE GENRES</div><div class="di-val">Surfaces all 3 Mystery/Thriller + 2 Romance titles from the pool — maximum swap coverage</div></div>
     </div>
-
-    <div class="triage-card">
-      <div class="tc-label">SCENARIO B</div>
-      <h3>Book suggestion edge function broken</h3>
-      <div class="trigger">⏱ Invoke when: stuck >30 min past Hr 5 on the book suggestion edge function</div>
-      <div class="tc-cut">CUT: AI book suggestions. Replace with manual "host picks 3 books" flow.</div>
-      <div class="tc-keep">KEEP: voting, RSVP, discussion questions. Loop still works.</div>
-      <p style="margin-top:10px">Prompt: <em>"Remove the AI book suggestion edge function. Replace the book selection screen with a simple host-entry flow: the host types in up to 3 book titles and authors manually, one per card. Each card still has a vote button and the horizontal tally bar below."</em></p>
-    </div>
-
-    <div class="triage-card">
-      <div class="tc-label">SCENARIO C — LAST RESORT</div>
-      <h3>Discussion question generator broken</h3>
-      <p>DO NOT pivot easily — this is your differentiator. Exhaust in order:</p>
-      <div class="trigger">1. Simplify Groq prompt (strip criteria bullets)</div>
-      <div class="trigger">2. Increase edge function timeout to 15s</div>
-      <div class="trigger">3. Confirm GROQ_API_KEY is in Cloud → Secrets (not env vars)</div>
-      <div class="tc-cut">LAST RESORT (past Hr 11 only): cached fallback + "Regenerate" cycles questions randomly. Remove spinner. Never cut the screen entirely.</div>
-    </div>
-
-    <div class="triage-card">
-      <div class="tc-label">SCENARIO D</div>
-      <h3>Something breaks after deploy</h3>
-      <div class="trigger">Order: Revert → De-emphasize → Remove → Seed around</div>
-      <p>Revert via Lovable version history first — always. Then de-emphasize (grey out). Then remove. Then seed around the broken path. Do not spend Day 3 debugging a feature you could remove.</p>
-    </div>
-
-    <div class="triage-card">
-      <div class="tc-label">SCENARIO E</div>
-      <h3>Behind on Day 2 (nice-to-haves slip)</h3>
-      <div class="trigger">⏱ Invoke when: Hr 22 arrives and Prompts 12/13/14 were never sent</div>
-      <div class="tc-cut">SKIP: Prompts 12, 13, 14 (affiliate links, host package, rotation view)</div>
-      <div class="tc-keep">DO: Prompt 15 (polish) → seed demo data → deploy → cold judge test</div>
-    </div>
-
   </div>
 
-  <div class="never-cut-box">
+  <div class="sec-head" style="margin-top:20px">WALKTHROUGH PATH — what a judge will do, unguided</div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:5px;padding:16px">
+    <ol style="padding-left:18px;display:flex;flex-direction:column;gap:10px">
+      <li style="font-size:.84rem;line-height:1.6;color:rgba(244,239,227,.8)"><strong style="color:var(--go)">Dashboard</strong> — should immediately convey what's "current" (this month's book, next gathering, RSVP status). First-run copy is doing the job narration used to do.</li>
+      <li style="font-size:.84rem;line-height:1.6;color:rgba(244,239,227,.8)"><strong style="color:var(--go)">Book Suggestions</strong> (via persistent nav) — sees AI's top-3 for Green Light's genres. May click "swap" on a card — know which title appears.</li>
+      <li style="font-size:.84rem;line-height:1.6;color:rgba(244,239,227,.8)"><strong style="color:var(--go)">Vote</strong> — clicks a vote button, tally updates live. May change their vote — this must work.</li>
+      <li style="font-size:.84rem;line-height:1.6;color:rgba(244,239,227,.8)"><strong style="color:var(--go)">RSVP</strong> — clicks Yes/Maybe/No, sees their name in the attendee list.</li>
+      <li style="font-size:.84rem;line-height:1.6;color:rgba(244,239,227,.8)"><strong style="color:var(--go)">Discussion Questions</strong> — sees AI-generated questions for the winning book. May click "Regenerate" — must degrade gracefully to cached fallback. No narration to cover a slow call.</li>
+      <li style="font-size:.84rem;line-height:1.6;color:rgba(244,239,227,.8)"><strong style="color:var(--go)">Pricing</strong> — sees Free vs. Pro; clicking a locked feature shows upgrade modal, not a dead end.</li>
+      <li style="font-size:.84rem;line-height:1.6;color:rgba(244,239,227,.8)"><strong style="color:var(--go)">Dashboard</strong> — returns, ideally reflecting state changes (vote outcome, RSVP status).</li>
+    </ol>
+  </div>
+
+  <hr class="gold-hr">
+  <div class="sec-head">WIRED VS. DECORATIVE — update as screens are built</div>
+  <table class="wd">
+    <tr><th>Screen</th><th>Element</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Dashboard</td><td>"This month's book" card</td><td><span class="wd-wired">WIRED</span></td><td>Shows real seeded data</td></tr>
+    <tr><td>Dashboard</td><td>"Next meetup" RSVP button</td><td><span class="wd-wired">WIRED</span></td><td>Navigates to RSVP screen</td></tr>
+    <tr><td>Dashboard</td><td>"What to bring" add action</td><td><span class="wd-mock">MOCK</span></td><td>Style as secondary/de-emphasized — don't invite a click</td></tr>
+    <tr><td>Book Suggestions</td><td>Swap button</td><td><span class="wd-wired">WIRED</span></td><td>Pulls 2nd cached title per genre; disables when exhausted</td></tr>
+    <tr><td>Book Suggestions</td><td>Vote button</td><td><span class="wd-wired">WIRED</span></td><td>Live tally, vote is changeable (last click wins)</td></tr>
+    <tr><td>RSVP</td><td>Yes/Maybe/No</td><td><span class="wd-wired">WIRED</span></td><td>Micro-confirm + avatar list updates via realtime</td></tr>
+    <tr><td>Discussion Qs</td><td>Regenerate button</td><td><span class="wd-wired">WIRED — HIGH RISK</span></td><td>Live Groq call + client-side 8s AbortController fallback. Test on deployed app, not localhost.</td></tr>
+    <tr><td>Discussion Qs</td><td>Save as PDF / Share</td><td><span class="wd-mock">MOCK</span></td><td>Ghost button only — de-emphasize, not a primary CTA</td></tr>
+    <tr><td>Pricing</td><td>Upgrade CTA</td><td><span class="wd-mock">MOCK by design</span></td><td>Must show waitlist modal, not do nothing</td></tr>
+  </table>
+
+  <hr class="gold-hr">
+  <div class="sec-head">RISK REGISTER</div>
+  <table class="risk">
+    <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+    <tr><td>Groq outage / rate limit when judge clicks Regenerate</td><td class="risk-m">Low-Med</td><td class="risk-h">High</td><td>Client-side cached fallback triggers automatically on timeout/error. Test the failure path on deployed app.</td></tr>
+    <tr><td>Supabase/Lovable downtime when judges open link</td><td class="risk-l">Low</td><td class="risk-h">High</td><td>No demo video backup. Deploy early (Day 2 eve), confirm URL working close to deadline.</td></tr>
+    <tr><td>Deploy breaks right before submission</td><td class="risk-m">Med</td><td class="risk-h">High</td><td>Freeze features by Day 3 morning. Polish/copy only after. Revert via Lovable history if needed.</td></tr>
+    <tr><td>Regenerate latency is slow / loading state doesn't show</td><td class="risk-m">Low-Med</td><td class="risk-h">High</td><td>Test on deployed app (not localhost). Confirm loading state actually renders during the wait.</td></tr>
+    <tr><td>Unwired element clicked by judge — no narration to redirect</td><td class="risk-m">Med</td><td class="risk-m">Med</td><td>Wired-vs-decorative table above. Fix, de-emphasize, or remove before submission.</td></tr>
+    <tr><td>Judge opens link on mobile / slow wifi</td><td class="risk-m">Low-Med</td><td class="risk-h">High</td><td>Test deployed URL on phone hotspot during Day 2 cold judge test.</td></tr>
+    <tr><td>Book pool pub dates drift before 6/21</td><td class="risk-l">Low</td><td class="risk-m">Med</td><td>Re-verify Cached Book Pool pub dates on 6/20.</td></tr>
+    <tr><td>Affiliate links resolve to wrong edition</td><td class="risk-l">Low</td><td class="risk-l">Low</td><td>Click-test both links before submission.</td></tr>
+  </table>
+
+  <hr class="gold-hr">
+  <div class="sec-head">EDGE CASES — "what's the dumbest thing a judge could click?"</div>
+  <table class="wd">
+    <tr><th>Edge Case</th><th>Decision</th><th>Notes</th></tr>
+    <tr><td>Voting twice / changing vote</td><td><span class="wd-wired">FIX IT</span></td><td>Last click wins, tally updates. Ask for this explicitly in Prompt 6.</td></tr>
+    <tr><td>RSVP visited before meetup date is set</td><td><span class="wd-mock">SEED AROUND</span></td><td>Seed demo with meetup date already set. Show "no meetup scheduled yet" empty state if reached.</td></tr>
+    <tr><td>Discussion Qs for book with no votes yet</td><td><span class="wd-mock">SEED AROUND</span></td><td>Seed "this month's book" as already decided. Show intentional empty state if reached.</td></tr>
+    <tr><td>Book cover image fails to load</td><td><span class="wd-wired">FIX IT</span></td><td>Genre-color placeholder (emerald/Mystery, garnet/Romance, navy/Historical+Literary, teal/Fantasy) with title in gold. Never broken image icon.</td></tr>
+    <tr><td>Swap clicked until pool exhausted (only 2/genre)</td><td><span class="wd-wired">FIX IT (graceful)</span></td><td>Disable swap button or cycle back after 1 alternate. Never error.</td></tr>
+    <tr><td>Page refreshed mid-flow</td><td><span class="wd-wired">FIX IT</span></td><td>Test on deployed app. State must persist via Supabase or reset to a clean/intentional view.</td></tr>
+    <tr><td>Mobile / narrow viewport</td><td><span class="wd-wired">FIX IT (Prompt 15)</span></td><td>Judges may open on phone. Must actually work.</td></tr>
+  </table>
+</div>
+
+<!-- ═══ TRIAGE ═══ -->
+<div id="page-triage" class="page">
+  <div class="sec-head">TRIAGE SCENARIOS — pre-decided. read before Hr 1.</div>
+  <div style="background:rgba(212,175,106,.06);border:1px solid var(--gold-border);border-radius:4px;padding:11px 14px;margin-bottom:18px;font-size:.78rem;color:rgba(244,239,227,.65);line-height:1.6">
+    The principle: a smaller app that works end to end is a stronger submission than a bigger app with one visible broken state. Judges score "fully functional, beginning-to-end experience" — breadth does not compensate for broken.
+  </div>
+  <div class="triage-grid">
+    <div class="t-card">
+      <div class="t-lbl">SCENARIO A — TARGET</div>
+      <h3>Full loop ships</h3>
+      <p>Dashboard → AI book suggestions → voting → RSVP → AI discussion questions → pricing. All wired to Supabase. All functional on the deployed URL, cold, on a different device.</p>
+      <div class="t-keep">This is the plan. Aim here. Everything below is triage, not strategy.</div>
+    </div>
+    <div class="t-card">
+      <div class="t-lbl">SCENARIO B</div>
+      <h3>Book suggestion edge function broken</h3>
+      <div class="t-trigger">⏱ Invoke when: stuck >30 min on book suggestion edge function past Hr 5</div>
+      <div class="t-cut">CUT: AI book suggestions. Replace with manual "host picks 3 books" flow.</div>
+      <div class="t-keep">KEEP: voting, RSVP, discussion questions. Loop still works end to end.</div>
+      <p style="margin-top:9px;font-size:.76rem">Pitch: "AI assists at the most important touchpoint — discussion questions. Book selection is host-driven in the MVP."</p>
+      <p style="font-size:.76rem">Prompt: <em>"Remove the AI book suggestion edge function. Replace with simple host-entry: host types up to 3 titles/authors manually. Each card still has vote button + tally bar. Style consistently."</em></p>
+    </div>
+    <div class="t-card">
+      <div class="t-lbl">SCENARIO C — LAST RESORT</div>
+      <h3>Discussion question generator broken</h3>
+      <p>DO NOT pivot easily. This is your differentiator. Exhaust in order:</p>
+      <div class="t-trigger">1. Simplify Groq prompt — strip criteria bullets to just: "Generate 6 thoughtful discussion questions for a book club reading {title} by {author}. Numbered list only."</div>
+      <div class="t-trigger">2. Increase edge function timeout to 15s. Groq is fast — if it's timing out, it's the function setup, not the model.</div>
+      <div class="t-trigger">3. Confirm GROQ_API_KEY is in Cloud → Secrets (not env vars). Most common gotcha.</div>
+      <div class="t-cut">LAST RESORT (past Hr 11 only): cached fallback + Regenerate cycles questions in random order. Remove spinner. It looks live. Never cut the screen entirely.</div>
+    </div>
+    <div class="t-card">
+      <div class="t-lbl">SCENARIO D</div>
+      <h3>Something breaks after deploy</h3>
+      <div class="t-trigger">Order: Revert → De-emphasize → Remove → Seed around</div>
+      <p>Revert via Lovable version history — always first, takes 2 min.</p>
+      <p>De-emphasize: grey out / remove hover state ("Make [X] appear visually disabled without removing from layout").</p>
+      <p>Remove: "Remove [X] entirely and update navigation so nothing links to it."</p>
+      <p>Seed around: prevent broken state from being the default view.</p>
+    </div>
+    <div class="t-card">
+      <div class="t-lbl">SCENARIO E</div>
+      <h3>Behind — nice-to-haves never happen</h3>
+      <div class="t-trigger">⏱ Invoke when: Hr 22 arrives and Prompts 12/13/14 were never sent</div>
+      <div class="t-cut">SKIP: Prompts 12, 13, 14 (affiliate links, host package, rotation view)</div>
+      <div class="t-keep">DO: Prompt 15 (polish) → seed demo data → deploy → cold judge test. This beats any nice-to-have.</div>
+    </div>
+  </div>
+  <div class="never-box">
     <h3>WHAT YOU NEVER CUT — regardless of scenario</h3>
     <ul>
-      <li>Persistent navigation</li>
-      <li>Dashboard</li>
-      <li>Voting screen</li>
-      <li>RSVP screen</li>
-      <li>Discussion questions screen</li>
-      <li>Pricing screen</li>
+      <li>Persistent navigation</li><li>Dashboard</li><li>Voting screen</li>
+      <li>RSVP screen</li><li>Discussion questions screen</li><li>Pricing screen</li>
     </ul>
   </div>
-
-  <hr class="gold-divider">
-  <div class="section-head">DECISION TREE</div>
-  <pre class="code-block">Build is stuck or broken
+  <hr class="gold-hr">
+  <div class="sec-head">DECISION TREE</div>
+  <pre class="dt">Build is stuck or broken
 │
 ├── Is it the book suggestion feature?
 │   └── Stuck >30 min past Hr 5 → Scenario B (manual entry), move on
 │
 ├── Is it the discussion question generator?
 │   ├── Try: simplify the prompt
-│   ├── Try: increase edge function timeout
-│   ├── Try: confirm GROQ_API_KEY is in Cloud → Secrets
-│   └── Still broken past Hr 11 → Scenario C last resort (cached fallback)
+│   ├── Try: increase edge function timeout to 15s
+│   ├── Try: confirm GROQ_API_KEY is in Cloud → Secrets (not env vars)
+│   └── Still broken past Hr 11 → Scenario C (cached fallback, remove spinner)
 │
 ├── Is it something that broke after deploy?
-│   ├── First: revert to last known-good version
-│   ├── Then: de-emphasize the broken element
-│   ├── Then: remove it entirely
+│   ├── First: revert to last known-good (Lovable version history)
+│   ├── Then: de-emphasize (grey out, remove hover state)
+│   ├── Then: remove entirely + update nav
 │   └── Then: seed around it
 │
 └── Are you just behind on nice-to-haves?
     └── Scenario E — skip 12/13/14, go straight to Prompt 15 + deploy</pre>
-
 </div>
 
-<!-- ══════════════════════════════ JUDGING PAGE ══════════════════════════════ -->
+<!-- ═══ JUDGING ═══ -->
 <div id="page-judging" class="page">
-
-  <div class="section-head">JUDGING CRITERIA — map every answer to these four categories</div>
-
-  <div class="judging-grid">
-
-    <div class="judging-card">
+  <div class="sec-head">JUDGING CRITERIA — map every submission answer to these four</div>
+  <div class="j-grid">
+    <div class="j-card">
       <div class="j-num">01</div>
       <h3>CREATIVITY</h3>
-      <p>Novel approach to the problem. Distinctive elements. Not just "ChatGPT wrapper."</p>
-      <div class="pitch-point">Swan Society: AI at two touchpoints (book selection + discussion questions) woven into a real-club workflow — not bolted on.</div>
-      <div class="pitch-point" style="margin-top:6px">The art deco design system makes it feel like a luxury product, not a productivity tool.</div>
+      <p>Novel approach. Distinctive elements. Not a ChatGPT wrapper.</p>
+      <div class="j-pt">AI at two touchpoints (book selection + discussion questions) woven into a real-club workflow — not bolted on as a demo feature.</div>
+      <div class="j-pt" style="margin-top:5px">Art deco design system makes it feel like a luxury product, not a productivity tool.</div>
+      <div class="j-pt" style="margin-top:5px">Full loop (vote → RSVP → prep) — not a landing page with an AI feature.</div>
     </div>
-
-    <div class="judging-card">
+    <div class="j-card">
       <div class="j-num">02</div>
       <h3>IMPACT</h3>
       <p>Real problem. Real users. Measurable benefit.</p>
-      <div class="pitch-point">13M US book club members. Host burnout kills clubs — 60%+ dissolve within 2 years. Swan Society removes the admin so the host can just show up.</div>
-      <div class="pitch-point" style="margin-top:6px">Fable/Everand acquisition (June 2026) = platform consolidation = gap for a standalone, host-centric club tool right now.</div>
+      <div class="j-pt">13M US book club members. Clubs don't die because people stop liking books — they die because the logistics get heavy. Swan Society removes the admin tax.</div>
+      <div class="j-pt" style="margin-top:5px">Fable/Everand acquisition June 2026 = platform consolidation = gap for a standalone host-centric tool right now.</div>
+      <div class="j-pt" style="margin-top:5px">+31% growth in book club events (Eventbrite 2025). 7% adult participation (Pew April 2026).</div>
     </div>
-
-    <div class="judging-card">
+    <div class="j-card">
       <div class="j-num">03</div>
       <h3>EXECUTION & DESIGN</h3>
-      <p>Fully functional beginning-to-end. Polished. Works on live URL, cold, different device.</p>
-      <div class="pitch-point">Full loop: club creation → book voting → RSVP → AI discussion questions → pricing. All data in Supabase, persists on refresh.</div>
-      <div class="pitch-point" style="margin-top:6px">No demo mode. Real Groq calls. Realtime vote tallies. Mobile responsive.</div>
+      <p>Fully functional beginning-to-end. Polished. Cold judge test passes.</p>
+      <div class="j-pt">Real Groq calls, realtime vote tallies, all data in Supabase, persists on refresh, mobile responsive.</div>
+      <div class="j-pt" style="margin-top:5px">No demo mode. No placeholder data. No dead ends. Every screen reads from and writes to the database.</div>
     </div>
-
-    <div class="judging-card">
+    <div class="j-card">
       <div class="j-num">04</div>
       <h3>FUTURE POTENTIAL</h3>
       <p>Believable roadmap. Monetization path. Market sizing.</p>
-      <div class="pitch-point">Freemium ($5/mo Pro): unlimited clubs, host rotation, shareable recap cards, AI theme pairings.</div>
-      <div class="pitch-point" style="margin-top:6px">TAM ~$234M (13M members × $18/yr at 10% conversion). SAM ~$78M (4.3M tech-savvy members). SOM ~$7.8M yr-1.</div>
-      <div class="pitch-point" style="margin-top:6px">Host rotation handoff, venue suggestions, partner integrations (Bookshop.org) on roadmap.</div>
+      <div class="j-pt">Freemium + Host Pro (~$5/mo): unlimited clubs, host rotation, shareable recap cards, AI theme pairings.</div>
+      <div class="j-pt" style="margin-top:5px">TAM ~$234M · SAM ~$78M · SOM ~$7.8M yr-1 (13M members, 10% conversion, $18/yr).</div>
+      <div class="j-pt" style="margin-top:5px">Host rotation with guided handoff = the mechanism that prevents burnout from recurring, not just easing it for one host.</div>
+      <div class="j-pt" style="margin-top:5px">Same shape applies beyond book clubs: supper clubs, game nights, running groups. Book clubs are the wedge.</div>
     </div>
-
   </div>
-
-  <hr class="gold-divider">
-  <div class="section-head">BEFORE YOU SUBMIT</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">
-    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
-      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Cold judge test passed (different device + network)
-    </label>
-    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
-      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Submission responses finalized with real screenshots/results
-    </label>
-    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
-      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Live URL included in submission (not localhost)
-    </label>
-    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
-      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Affiliate links click-tested
-    </label>
-    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
-      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> Demo book is one of 3 fallback-eligible titles
-    </label>
-    <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:12px 14px;cursor:pointer;font-size:.82rem">
-      <input type="checkbox" style="accent-color:var(--gold);width:16px;height:16px"> GROQ_API_KEY confirmed in Cloud → Secrets
-    </label>
+  <hr class="gold-hr">
+  <div class="sec-head">PRE-SUBMISSION CHECKLIST</div>
+  <div class="checklist">
+    <label class="cl-item"><input type="checkbox"> Cold judge test passed (different device + network)</label>
+    <label class="cl-item"><input type="checkbox"> Submission responses finalized with real screenshots</label>
+    <label class="cl-item"><input type="checkbox"> Live URL included (not localhost)</label>
+    <label class="cl-item"><input type="checkbox"> Affiliate links click-tested</label>
+    <label class="cl-item"><input type="checkbox"> Demo book is one of 3 fallback-eligible titles</label>
+    <label class="cl-item"><input type="checkbox"> GROQ_API_KEY confirmed in Cloud → Secrets</label>
+    <label class="cl-item"><input type="checkbox"> Regenerate cached-fallback tested on deployed app</label>
+    <label class="cl-item"><input type="checkbox"> demo@swansociety.app created + seeded</label>
+    <label class="cl-item"><input type="checkbox"> Zero "Broken" rows in wired-vs-decorative table</label>
+    <label class="cl-item"><input type="checkbox"> Mobile viewport tested on actual phone</label>
+    <label class="cl-item"><input type="checkbox"> Book pool pub dates re-verified (6/20)</label>
+    <label class="cl-item"><input type="checkbox"> Submitted with time to spare — not at the wire</label>
   </div>
-
 </div>
 
 </div><!-- /app -->
 
 <script>
-// ── PASSPHRASE ──
+// ── PASS ──
 const PASS = 'swansociety2026';
 function checkPass() {
-  const v = document.getElementById('pw-input').value.trim().toLowerCase().replace(/\s/g,'');
-  if (v === PASS) {
-    sessionStorage.setItem('mc_auth','1');
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    init();
-  } else {
-    document.getElementById('gate-err').textContent = 'Incorrect passphrase.';
-  }
+  const v = document.getElementById('pw').value.trim().toLowerCase().replace(/\s/g,'');
+  if (v === PASS) { sessionStorage.setItem('mc','1'); unlock(); }
+  else { document.getElementById('gate-err').textContent = 'Incorrect passphrase.'; }
 }
-document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPass(); });
-if (sessionStorage.getItem('mc_auth') === '1') {
+document.getElementById('pw').addEventListener('keydown', e => { if(e.key==='Enter') checkPass(); });
+function unlock() {
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  init();
 }
+if (sessionStorage.getItem('mc')==='1') unlock();
 
 // ── NAV ──
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  event.currentTarget.classList.add('active');
+function nav(btn, id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
 }
 
-// ── CLOCK START ──
-// Sun June 21 2026, 10:00 AM Eastern (UTC-4 in June)
-const CLOCK_START = new Date('2026-06-21T14:00:00Z'); // 10AM ET = 14:00 UTC
-const CLOCK_END   = new Date('2026-06-23T14:00:00Z'); // 48h later
+// ── CLOCK ──
+const START = new Date('2026-06-21T14:00:00Z');
+const END   = new Date('2026-06-23T14:00:00Z');
 
-// ── SCHEDULE DATA ──
-const HOURS = [
-  {
-    id:'h1', label:'HR 1', time:'10:00 – 11:00 AM', title:'Project Setup',
-    badge:'BUILD', offsetHr:0, durationHr:1,
-    prompts:[
-      { name:'Prompt 1', tag:'CLAUDE → LOVABLE', text:'Claude action: <code>create_project</code> (name: "Swan Society"), then immediately send Prompt 2.' },
-      { name:'Prompt 2', tag:'CLAUDE → LOVABLE', text:'Send the master design system + auth prompt.', note:'⚠️ GATE: Do not send Prompt 3 until you\'ve eyeballed the live preview and confirmed auth is wired — this is the foundation everything else builds on. Pull get_diff before moving on.' },
-      { name:'Prompt 3', tag:'CLAUDE → LOVABLE', text:'Send the Supabase schema prompt (all 6 tables).', note:'⚠️ GATE: Claude pulls get_diff and confirms all 6 tables exist. Do not send Prompt 4 until confirmed.' },
-      { name:'Prompt 3a', tag:'CLAUDE → LOVABLE', text:'Send the Row-Level Security policies prompt.', gate:'⚠️ DO NOT SKIP: RLS is on by default. Without policies, every SELECT returns zero rows. Classic symptom: club is in DB but dashboard renders empty.' }
-    ]
-  },
-  {
-    id:'h23', label:'HR 2–3', time:'11:00 AM – 1:00 PM', title:'Club Creation + Dashboard',
-    badge:'BUILD', offsetHr:1, durationHr:2,
-    prompts:[
-      { name:'Prompt 4', tag:'CLAUDE → LOVABLE', text:'Send the first-run / club creation flow prompt.', note:'After sending: manually test the full path: sign up → welcome screen → fill in club name + genres → Create my club → confirm clubs row in Supabase → redirected to dashboard. Do not move to Prompt 5 until this works end to end.' },
-      { name:'Prompt 5', tag:'CLAUDE → LOVABLE', text:'Send the Club dashboard / home screen prompt.', note:'Dashboard must read from Supabase on mount — no hardcoded data. Confirm empty states show.' }
-    ]
-  },
-  {
-    id:'h35', label:'HR 3–5', time:'1:00 – 3:00 PM', title:'Book Suggestion + Voting',
-    badge:'BUILD', offsetHr:3, durationHr:2,
-    prompts:[
-      { name:'Prompt 6', tag:'CLAUDE → LOVABLE', text:'Send the book suggestion + voting screen prompt.', note:'Check: 3 cards showing, swap button works, vote tallies update live, cover image fallbacks (genre color) working.' },
-      { name:'Prompt 7', tag:'CLAUDE → LOVABLE + EDGE FN', text:'Send the book suggestion generator / backend wiring prompt (includes hardcoded book pool JSON).', note:'Architecture: client owns pool state; edge function writes descriptions only. Swap is client-side array lookup, no network call.' },
-      { name:'Prompt 7a', tag:'CLAUDE → LOVABLE', text:'Send the vote → book loop wiring prompt (persist candidates + select winner).', gate:'Without this, vote button has no real book row and winning book never becomes the active book on the dashboard.' }
-    ]
-  },
-  {
-    id:'h68', label:'HR 6–8', time:'3:00 – 6:00 PM', title:'RSVP Screen',
-    badge:'BUILD', offsetHr:5, durationHr:3,
-    prompts:[
-      { name:'Prompt 8', tag:'CLAUDE → LOVABLE', text:'Send the RSVP screen prompt.', note:'Check: reads from meetups table, upsert on button click, avatar list updates live via realtime, empty state if no meetup.' }
-    ]
-  },
-  {
-    id:'h911', label:'HR 9–11', time:'7:00 – 9:00 PM', title:'Discussion Questions (your differentiator)',
-    badge:'BUILD', offsetHr:8, durationHr:3,
-    prompts:[
-      { name:'⚠️ Infrastructure check', tag:'DO FIRST', text:'Confirm GROQ_API_KEY is in Supabase Cloud → Secrets (NOT just environment variables). Budget 20–30 min. The screen is useless without it.', gate:'Most common gotcha. The edge function silently fails if the key is in env vars instead of Secrets.' },
-      { name:'Prompt 9', tag:'CLAUDE → LOVABLE', text:'Send the discussion questions screen prompt.', note:'Check: Regenerate = primary action (gold), Save as PDF = de-emphasized ghost link, free tier soft lock below Q3.' },
-      { name:'Prompt 10', tag:'CLAUDE → LOVABLE + EDGE FN', text:'Send the discussion question generator / backend wiring prompt. Includes cached fallback for all 3 demo titles.', note:'Belt and suspenders: fallback in BOTH the client bundle AND the edge function. Client-side AbortController enforces 8s timeout regardless of Supabase state.' }
-    ]
-  },
-  {
-    id:'h1213', label:'HR 12–13', time:'Day 1 End', title:'Day 1 Triage',
-    badge:'CHECKPOINT', offsetHr:12, durationHr:2,
-    prompts:[
-      { name:'Checkpoint', tag:'REVIEW', text:'What\'s working end to end? What\'s broken or rough? What\'s the plan for tomorrow? Invoke a triage scenario if needed. Log it on the Build Log tab.' }
-    ]
-  },
-  {
-    id:'h1417', label:'HR 14–17', time:'Day 2 Morning', title:'Bug Fixes + Monetization',
-    badge:'BUILD', offsetHr:24, durationHr:4,
-    prompts:[
-      { name:'Prompt 11', tag:'CLAUDE → LOVABLE', text:'Send the pricing / upgrade screen prompt.', note:'Check: Upgrade CTA opens modal (not navigates away), waitlist email saves to Supabase, free tier CTA links to sign-up. Neither button is a dead end.' }
-    ]
-  },
-  {
-    id:'h1821', label:'HR 18–21', time:'Day 2 Midday', title:'Nice-to-Haves (skip if behind)',
-    badge:'OPTIONAL', offsetHr:28, durationHr:4,
-    prompts:[
-      { name:'Prompt 12', tag:'CLAUDE → LOVABLE', text:'Amazon affiliate "buy this book" link. Use placeholder link — swap in real ASINs from Affiliate Links doc.', note:'nice-to-have — skip if behind and go straight to Prompt 15' },
-      { name:'Prompt 13', tag:'CLAUDE → LOVABLE', text:'Host package screen (mockup-only, no live data needed).', note:'nice-to-have' },
-      { name:'Prompt 14', tag:'CLAUDE → LOVABLE', text:'Host rotation view (simple horizontal timeline).', note:'nice-to-have' }
-    ]
-  },
-  {
-    id:'h2225', label:'HR 22–25', time:'Day 2 Afternoon', title:'Polish Pass',
-    badge:'POLISH', offsetHr:33, durationHr:4,
-    prompts:[
-      { name:'Prompt 15a', tag:'CLAUDE → LOVABLE', text:'Empty states: review all screens for what they look like before any data exists. Add tasteful messaging consistent with the design system.' },
-      { name:'Prompt 15b', tag:'CLAUDE → LOVABLE', text:'Mobile responsiveness: book cards stack vertically, vote bars go full-width, RSVP buttons min 48px height, pricing cards stack, no horizontal overflow.' },
-      { name:'Prompt 15c', tag:'CLAUDE → LOVABLE', text:'Visual consistency: confirm spacing, gold dividers, and card styles match across all screens. Tighten anything inconsistent.' }
-    ]
-  },
-  {
-    id:'h2628', label:'HR 26–28', time:'Day 2 Evening', title:'Deploy + Cold Judge Test',
-    badge:'DEPLOY', offsetHr:37, durationHr:3,
-    prompts:[
-      { name:'Cold judge test', tag:'DO ON DIFFERENT DEVICE + NETWORK', text:'Open deployed URL cold. Sign up fresh → welcome screen → create club → dashboard loads correct club name → book suggestion screen: 3 cards load, swap works, vote persists → RSVP: buttons work, response saves → Discussion questions: Regenerate triggers Groq call, questions appear → Pricing: Upgrade CTA opens modal, waitlist submit works → Nav: can move between all screens without dead ends.', gate:'If anything fails here: Revert → De-emphasize → Remove. Do not debug for hours. See Triage Scenario D.' }
-    ]
-  },
-  {
-    id:'h3544', label:'HR 35–44', time:'Day 3 Morning', title:'Final QA + Submission',
-    badge:'SUBMIT', offsetHr:47, durationHr:2,
-    prompts:[
-      { name:'Final checklist', tag:'BEFORE SUBMIT', text:'Repeat cold judge test. Finalize submission responses with real screenshots/results. Include live URL in submission (not localhost). Submit before 10:00 AM ET.' }
-    ]
-  }
+// ── SCHEDULE ──
+const BLOCKS = [
+  { id:'b1',  lbl:'HR 1',     time:'10:00–11:00 AM',  title:'Project Setup',                    badge:'BUILD',   bType:'',    offHr:0,  durHr:1  },
+  { id:'b23', lbl:'HR 2–3',   time:'11:00 AM–1:00 PM',title:'Club Creation + Dashboard',        badge:'BUILD',   bType:'',    offHr:1,  durHr:2  },
+  { id:'b35', lbl:'HR 3–5',   time:'1:00–3:00 PM',    title:'Book Suggestion + Voting',         badge:'BUILD',   bType:'',    offHr:3,  durHr:2  },
+  { id:'b68', lbl:'HR 6–8',   time:'3:00–6:00 PM',    title:'RSVP Screen',                      badge:'BUILD',   bType:'',    offHr:5,  durHr:3  },
+  { id:'b911',lbl:'HR 9–11',  time:'7:00–9:00 PM',    title:'Discussion Questions (differentiator)',badge:'BUILD',bType:'',   offHr:8,  durHr:3  },
+  { id:'b12', lbl:'HR 12–13', time:'Day 1 End',        title:'Day 1 Triage + Plan for Tomorrow', badge:'CHECK',   bType:'dep', offHr:11, durHr:2  },
+  { id:'b14', lbl:'HR 14–17', time:'Day 2 Morning',    title:'Bug Fixes + Monetization',         badge:'BUILD',   bType:'',    offHr:24, durHr:4  },
+  { id:'b18', lbl:'HR 18–21', time:'Day 2 Midday',     title:'Nice-to-Haves (skip if behind)',   badge:'OPTIONAL',bType:'opt', offHr:28, durHr:4  },
+  { id:'b22', lbl:'HR 22–25', time:'Day 2 Afternoon',  title:'Polish Pass',                      badge:'POLISH',  bType:'pol', offHr:33, durHr:4  },
+  { id:'b26', lbl:'HR 26–28', time:'Day 2 Evening',    title:'Deploy + Cold Judge Test',         badge:'DEPLOY',  bType:'dep', offHr:37, durHr:3  },
+  { id:'b35d',lbl:'HR 35–44', time:'Day 3 Morning',    title:'Final QA + Submission',            badge:'SUBMIT',  bType:'sub', offHr:47, durHr:2  }
+];
+
+const SCHED_CONTENT = {
+  b1: `<div class="prompt-block">
+  <div class="p-label">PROMPT 1 — Project creation <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">Claude action: <code>create_project</code> (name: "Swan Society"), then immediately send Prompt 2.</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 2 — Master design system + auth <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">See Full Prompts tab for the complete text.</div>
+  <div class="p-gate"><strong>⛔ GATE:</strong> Do NOT send Prompt 3 until you've eyeballed the live preview and confirmed auth is wired. Pull get_diff. This is the foundation.</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 3 — Supabase schema <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">6 tables: clubs, meetups, books, votes, rsvps, waitlist — with exact column names. See Full Prompts tab.</div>
+  <div class="p-gate"><strong>⛔ GATE:</strong> Claude pulls get_diff and confirms all 6 tables exist before Prompt 4.</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 3a — Row-Level Security <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">Enable RLS + policies on all 6 tables. See Full Prompts tab for exact policies.</div>
+  <div class="p-gate"><strong>⛔ DO NOT SKIP:</strong> RLS is on by default. Without policies, every SELECT returns zero rows even though data is really there. Classic symptom: dashboard renders empty despite data in DB. Do not send Prompt 4 until RLS is confirmed.</div>
+</div>`,
+
+  b23: `<div class="prompt-block">
+  <div class="p-label">PROMPT 4 — First-run / club creation flow <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">See Full Prompts tab for complete text.</div>
+  <div class="p-gate"><strong>⛔ GATE:</strong> Manually test full path: sign up → welcome screen → club name + genres → Create → clubs row in Supabase → redirected to dashboard. Do NOT move to Prompt 5 until this works end to end. This record is what every subsequent screen queries.</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 5 — Club dashboard / home <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">See Full Prompts tab for complete text.</div>
+  <div class="p-note"><strong>Check:</strong> Dashboard reads from Supabase on mount (no hardcoded data). Empty states show for all 3 cards. "Discussion questions ready" badge on active book.</div>
+</div>`,
+
+  b35: `<div class="prompt-block">
+  <div class="p-label">PROMPT 6 — Book suggestion + voting screen <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">See Full Prompts tab for complete text.</div>
+  <div class="p-note"><strong>Check:</strong> 3 cards showing · swap button works · vote tallies update live via Supabase realtime · cover image fallbacks (genre-color placeholder, never broken icon).</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 7 — Book suggestion backend <span class="p-tag">CLAUDE → LOVABLE + EDGE FN</span></div>
+  <div class="p-body"><strong>Architecture:</strong> client owns pool state (hardcoded JSON). Swap is client-side array lookup — no network call. Edge function writes descriptions only (never selects titles). See Full Prompts tab for full JSON + Groq prompt.</div>
+  <div class="p-note"><strong>Check:</strong> Edge function deployed · descriptions loading from Groq · Groq edge function log snapshot (Supabase → Edge Functions → Logs).</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 7a — Vote → book loop wiring <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">See Full Prompts tab for complete text.</div>
+  <div class="p-gate"><strong>⛔ Without this:</strong> vote button has no real book row in the DB. Winning book never becomes the dashboard's active book. The loop only looks connected.</div>
+  <div class="p-note"><strong>Test after:</strong> Vote for a book that is NOT your pre-seeded pick → close voting → confirm dashboard AND Discussion Questions both update to the new winner.</div>
+</div>`,
+
+  b68: `<div class="prompt-block">
+  <div class="p-label">PROMPT 8 — RSVP screen <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">See Full Prompts tab for complete text.</div>
+  <div class="p-note"><strong>Check:</strong> Reads from meetups table · upsert on button click · avatar list updates live via realtime · empty state if no meetup scheduled ("No meetup scheduled yet — check back soon")</div>
+</div>`,
+
+  b911: `<div class="prompt-block">
+  <div class="p-label">⚠️ INFRASTRUCTURE CHECK — DO FIRST <span class="p-tag">BEFORE PROMPTS 9+10</span></div>
+  <div class="p-body">Confirm <code>GROQ_API_KEY</code> is in Supabase <strong>Cloud → Secrets</strong> (NOT just environment variables). Budget 20–30 min. The screen is useless without it.</div>
+  <div class="p-gate"><strong>Most common gotcha:</strong> Supabase edge functions need the key in Secrets specifically, not env vars. The function silently fails otherwise.</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 9 — Discussion questions screen <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">See Full Prompts tab for complete text.</div>
+  <div class="p-note"><strong>Check:</strong> Regenerate = primary action (gold filled) · Save as PDF = ghost button only (de-emphasized) · free tier soft lock below Q3</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 10 — Discussion question backend <span class="p-tag">CLAUDE → LOVABLE + EDGE FN</span></div>
+  <div class="p-body">See Full Prompts tab for complete text + all 3 cached fallback sets.</div>
+  <div class="p-note"><strong>Belt and suspenders:</strong> fallback in BOTH client bundle AND edge function. Client-side <code>AbortController</code> enforces 8s timeout — even if Supabase is completely unreachable. Never a spinner that never resolves.</div>
+  <div class="p-gate"><strong>Demo seed constraint:</strong> active book MUST be one of: My Husband's Wife · The First Time I Saw Him · The Storm. Otherwise cached fallback has nothing to match on.</div>
+</div>`,
+
+  b12: `<div class="prompt-block">
+  <div class="p-label">DAY 1 TRIAGE CHECKPOINT <span class="p-tag">REVIEW</span></div>
+  <div class="p-body">What's working end to end? What's broken or rough? What's the plan for tomorrow? Write it down before you stop — future-you will thank past-you. Log it on the Build Log tab. Invoke a triage scenario if needed.</div>
+</div>`,
+
+  b14: `<div class="prompt-block">
+  <div class="p-label">PROMPT 11 — Pricing / upgrade screen <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">See Full Prompts tab for complete text.</div>
+  <div class="p-note"><strong>Check:</strong> Upgrade CTA opens modal (NOT navigates away) · waitlist email saves to Supabase waitlist table · free tier CTA links to sign-up · neither button is a dead end</div>
+</div>`,
+
+  b18: `<div class="prompt-block">
+  <div class="p-label">PROMPT 12 — Amazon affiliate "buy this book" <span class="p-tag">CLAUDE → LOVABLE (nice-to-have)</span></div>
+  <div class="p-body">Small "Buy this book" button on dashboard + discussion questions screen. Gold outline, not filled. Links: My Husband's Wife → <code>amazon.com/dp/125033781X?tag=swansociety-20</code> · The First Time I Saw Him → <code>amazon.com/dp/1668002965?tag=swansociety-20</code></div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 13 — Host package screen <span class="p-tag">CLAUDE → LOVABLE (nice-to-have)</span></div>
+  <div class="p-body">Mockup-only. Decor suggestion + food/drink pairings + discussion questions preview. Framed as Swan Society Pro. Single ivory card with gold deco frame. "Feels like a printed keepsake."</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 14 — Host rotation view <span class="p-tag">CLAUDE → LOVABLE (nice-to-have)</span></div>
+  <div class="p-body">Simple horizontal timeline showing upcoming host order. Current host highlighted, next host marked "up next," remaining members muted. Next meetup date next to current host.</div>
+</div>`,
+
+  b22: `<div class="prompt-block">
+  <div class="p-label">PROMPT 15a — Empty states <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">Review all screens for what they look like before any data exists. Add tasteful empty-state messaging consistent with the design system.</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 15b — Mobile responsiveness <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">≤768px: book cards stack vertically (not cramped side-by-side) · vote tally bars go full-width · RSVP buttons full-width, min 48px height · pricing cards stack · no horizontal overflow on any screen · cover images scale without breaking card aspect ratio.</div>
+</div>
+<div class="prompt-block">
+  <div class="p-label">PROMPT 15c — Visual consistency <span class="p-tag">CLAUDE → LOVABLE</span></div>
+  <div class="p-body">Confirm spacing, gold divider usage, and card styles match across all screens. Tighten anything inconsistent with the design system.</div>
+</div>`,
+
+  b26: `<div class="prompt-block">
+  <div class="p-label">COLD JUDGE TEST — run on a DIFFERENT DEVICE + NETWORK <span class="p-tag">CRITICAL</span></div>
+  <div class="p-body">Open deployed URL cold. No prior context. Sign up fresh → welcome screen → create club → dashboard loads club name → Book suggestion: 3 cards, swap works, vote persists → RSVP: buttons work, response saves → Discussion questions: Regenerate triggers Groq, questions appear → Pricing: Upgrade opens modal, waitlist submit works → Nav: all screens reachable, no dead ends.</div>
+  <div class="p-gate"><strong>If anything fails:</strong> Revert → De-emphasize → Remove. See Triage Scenario D. Do not debug for hours. Stable and smaller beats broken and ambitious.</div>
+</div>`,
+
+  b35d: `<div class="prompt-block">
+  <div class="p-label">FINAL STRETCH — Day 3, deadline 10:00 AM ET <span class="p-tag">SUBMIT</span></div>
+  <div class="p-body">Repeat cold judge test on deployed URL, fresh tab, different device. Finalize submission responses (drafted in prep) with real screenshots/results. Include live URL in submission — not localhost. Submit before 10:00 AM ET. Not at the wire.</div>
+</div>`
+};
+
+// ── FULL PROMPT TEXT ──
+const FULL_PROMPTS = [
+  { name:'Prompt 1 — Project creation', tag:'CLAUDE → LOVABLE',
+    body:`<p>Claude action: <code>create_project</code> (name: "Swan Society"), then immediately send Prompt 2.</p>` },
+  { name:'Prompt 2 — Master design system + auth', tag:'CLAUDE → LOVABLE',
+    note:'⛔ GATE: Do not send Prompt 3 until auth is confirmed wired and you\'ve eyeballed the live preview. Pull get_diff.',
+    body:`<blockquote>Build a beautifully designed web app called Swan Society for hosting book clubs, with an art deco / 1920s Gatsby-inspired aesthetic. Use a deep jewel-tone palette: emerald (#0C2A24), garnet (#3D0F1E), midnight navy (#101935), and onyx (#1C1C1C) as base/surface colors, with champagne gold (#D4AF6A) as the single accent color for line work, icons, dividers, and highlights, and ivory (#F4EFE3) for content cards and negative space. Pair a deco-style serif font for headings — set in spaced-out capital letters — with a clean modern sans-serif for body text and UI elements. Use a swan-and-open-book logo mark rendered in gold line art. Incorporate subtle art deco motifs (sunburst/fan shapes, thin gold dividers, chevrons) as accents for headers and section breaks — used sparingly, like jewelry, not wallpaper. Use minimalist gold line-drawing icons (open book, champagne glass, swan, feather) instead of stock photos or 3D renders, no gradients except where noted in the palette. Every screen should have one clear primary action. The overall feeling should be like an exclusive, beautifully designed literary salon from the Gatsby era — elegant and a little glamorous, not generic productivity software.<br><br>Use Lovable's built-in Supabase auth for user sessions — email/password sign-in is fine. Every screen that shows club data should require an authenticated session; redirect unauthenticated users to a sign-in page. The demo will log in as the club host. Do not build a "demo mode" with hardcoded state — all data must persist in Supabase so it survives a page refresh.</blockquote>` },
+  { name:'Prompt 3 — Supabase schema', tag:'CLAUDE → LOVABLE',
+    note:'⛔ GATE: Pull get_diff and confirm all 6 tables exist before Prompt 4.',
+    body:`<blockquote>Before building any screens, set up the Supabase database schema. Create these tables with exactly these names and columns:<br><br>
+• <strong>clubs</strong> — id (uuid, pk), name (text), genres (text[]), host_user_id (uuid, refs auth.users), created_at (timestamptz)<br>
+• <strong>meetups</strong> — id (uuid, pk), club_id (uuid, refs clubs), date (date), time (time), location (text), created_at (timestamptz)<br>
+• <strong>books</strong> — id (uuid, pk), club_id (uuid, refs clubs), title (text), author (text), genre (text), pub_date (text), cover_url (text), is_active (bool, default false), questions_generated (bool, default false), created_at (timestamptz)<br>
+• <strong>votes</strong> — id (uuid, pk), club_id (uuid, refs clubs), book_id (uuid, refs books), user_id (uuid, refs auth.users), created_at (timestamptz) — UNIQUE(club_id, user_id)<br>
+• <strong>rsvps</strong> — id (uuid, pk), club_id (uuid, refs clubs), meetup_id (uuid, refs meetups), user_id (uuid, refs auth.users), response (text: 'yes'|'maybe'|'no'), created_at (timestamptz) — UNIQUE(meetup_id, user_id)<br>
+• <strong>waitlist</strong> — id (uuid, pk), email (text, unique), created_at (timestamptz)<br><br>
+Confirm each table is created and visible in the Supabase dashboard before proceeding.</blockquote>` },
+  { name:'Prompt 3a — Row-Level Security policies', tag:'CLAUDE → LOVABLE',
+    note:'⛔ DO NOT SKIP. RLS is on by default. Without policies, every SELECT returns zero rows — classic symptom is dashboard rendering empty even though data is in the DB. Do not send Prompt 4 until verified.',
+    body:`<blockquote>Now configure Row-Level Security on the schema you just created. Enable RLS on all six tables (clubs, meetups, books, votes, rsvps, waitlist), then add policies:<br><br>
+• <strong>clubs</strong>: INSERT when host_user_id = auth.uid(); SELECT + UPDATE where host_user_id = auth.uid()<br>
+• <strong>meetups</strong> and <strong>books</strong>: SELECT/INSERT/UPDATE/DELETE where club_id IN (SELECT id FROM clubs WHERE host_user_id = auth.uid())<br>
+• <strong>votes</strong> and <strong>rsvps</strong>: SELECT all rows for clubs the current user hosts; INSERT/UPDATE/DELETE only own rows (user_id = auth.uid())<br>
+• <strong>waitlist</strong>: INSERT for anyone including unauthenticated; SELECT restricted to service role only<br><br>
+Confirm RLS is enabled on every table and that an authenticated host can read and write their own club's data before building any screen.</blockquote>
+<p style="margin-top:10px">Verify two ways: (1) signed in as host, confirm data returns; (2) second test user cannot read host's club data. If reads come back empty after this prompt, suspect the policy, not the query.</p>` },
+  { name:'Prompt 4 — First-run / club creation flow', tag:'CLAUDE → LOVABLE',
+    note:'⛔ GATE: Manually test the full path end to end before moving to Prompt 5. This record is what every subsequent screen queries.',
+    body:`<blockquote>After a user signs in for the first time and has no club yet, show a welcome screen instead of the dashboard. It should feel like an invitation, not a form. Include: a brief warm headline ("Welcome to Swan Society. Let's set up your club."), a text input for club name, a genre multi-select (checkboxes or chips) with these options: Mystery/Thriller, Romance, Historical Fiction, Literary Fiction, Fantasy, Sci-Fi — allow 1 to 3 selections, and a single champagne gold "Create my club" button. On submit, insert a record into the clubs table (name, genres array, host_user_id = current auth user) and redirect to the main dashboard. Check on every app load whether the current user has a club record — if not, redirect to this welcome screen instead of the dashboard.</blockquote>` },
+  { name:'Prompt 5 — Club dashboard / home', tag:'CLAUDE → LOVABLE',
+    body:`<blockquote>Create a dashboard home screen for Swan Society. At the top, show the club name (read from the clubs table) and a warm greeting within a deep emerald or navy header band with a thin gold divider. Below, show three ivory cards:<br><br>
+• "This month's book" — reads the active book (is_active = true). Shows cover, title, author. If questions_generated = true, show "Discussion questions ready" badge in champagne gold. Empty state: "No book selected yet — head to Book Selection to get started."<br>
+• "Next meetup" — reads next upcoming meetup (date >= today). Shows date, time, location, current user's RSVP status, and a clear RSVP button. Empty state: "No meetup scheduled yet."<br>
+• "What to bring" — simple static list (one member brings wine, one brings snacks, one brings dessert) with a de-emphasized "add yours" text link, not a primary button.<br><br>
+All three cards must read from Supabase on mount — no hardcoded placeholder data. One screen, no scrolling required on desktop.</blockquote>` },
+  { name:'Prompt 6 — Book suggestion + voting screen', tag:'CLAUDE → LOVABLE',
+    body:`<blockquote>Create a book selection screen. Show a header "AI picks for [Club Name]" with a small "based on your genres" tag, then 3 candidate book cards (cover image, title, author, one-sentence description, genre tag, "new release" badge). Each card has a "swap" icon button (subtly styled) and a "vote" button. Below the cards, show a simple horizontal bar showing current vote tallies.<br><br>
+Data requirements:<br>
+• Store all votes in Supabase (votes table: user_id, book_id, club_id, timestamp). A user can change their vote — last vote wins, tally updates live via Supabase realtime subscriptions.<br>
+• Swap: replaces only that card's book with the next available title for the same genre from the pool. Disable swap button if no alternate exists for that genre — never error or repeat.<br>
+• If a book cover image URL fails to load, show a colored placeholder: emerald for Mystery/Thriller, garnet for Romance, midnight navy for Historical/Literary, deep teal for Fantasy — with the book title in champagne gold text centered. Never show a broken image icon.</blockquote>` },
+  { name:'Prompt 7 — Book suggestion generator (backend)', tag:'CLAUDE → LOVABLE + EDGE FN',
+    note:'Architecture: client owns pool state. Edge function writes descriptions only — never selects or invents titles. Swap is client-side array lookup.',
+    body:`<p><strong>Groq prompt (edge function):</strong></p>
+<blockquote>You are writing one-sentence descriptions for book club candidates. For each book listed below, write a single sentence that helps a reader decide whether they'd want to read it — not a plot summary, written in an inviting tone for a book club audience. Return only a numbered list matching the input order, no preamble or commentary.<br><br>Books: {book_list}</blockquote>
+<p><strong>Hardcoded book pool (paste into edge function):</strong></p>
+<pre>[
+  { "id": 1, "title": "The Storm", "author": "Rachel Hawkins", "genre": "Mystery/Thriller", "pub": "January 2026" },
+  { "id": 2, "title": "My Husband's Wife", "author": "Alice Feeney", "genre": "Mystery/Thriller", "pub": "January 2026" },
+  { "id": 3, "title": "The First Time I Saw Him", "author": "Laura Dave", "genre": "Mystery/Thriller", "pub": "January 2026" },
+  { "id": 4, "title": "Cool Machine", "author": "Colson Whitehead", "genre": "Historical Fiction", "pub": "2026" },
+  { "id": 5, "title": "Japanese Gothic", "author": "Kylie Lee Baker", "genre": "Historical Fiction", "pub": "2026" },
+  { "id": 6, "title": "The League of Lonely War Women", "author": "Andie Newton", "genre": "Historical Fiction", "pub": "2026" },
+  { "id": 7, "title": "Go Gentle", "author": "Maria Semple", "genre": "Literary Fiction", "pub": "April 2026" },
+  { "id": 8, "title": "The Great Wherever", "author": "Shannon Sanders", "genre": "Literary Fiction", "pub": "April 2026" },
+  { "id": 9, "title": "Daughter of Crows", "author": "Mark Lawrence", "genre": "Fantasy", "pub": "March 2026" },
+  { "id": 10, "title": "The Rainshadow Orphans", "author": "Naomi Ishiguro", "genre": "Fantasy", "pub": "May 2026" },
+  { "id": 11, "title": "You Won't Forget Me", "author": "Mazey Eddings", "genre": "Romance", "pub": "June 2026" },
+  { "id": 12, "title": "Just for the Cameras", "author": "Meghan Quinn", "genre": "Romance", "pub": "February 2026" }
+]</pre>
+<p>Implementation: Supabase edge function · <code>GROQ_API_KEY</code> in Cloud → Secrets · model <code>llama-3.3-70b-versatile</code> · temp 0.7. Edge function accepts <code>{ book_ids: number[], club_genres: string[] }</code>, returns <code>{ id, title, author, genre, pub, description }[]</code>.</p>` },
+  { name:'Prompt 7a — Vote → book loop wiring', tag:'CLAUDE → LOVABLE',
+    note:'Without this, votes have no real book rows (pool IDs are integers, not uuids). Winning book never becomes active on dashboard.',
+    body:`<blockquote>Wire the book pool to the database so voting is real and the winner flows through to the rest of the app:<br><br>
+• When the book suggestion screen renders its 3 displayed candidates, upsert each one into the books table — title, author, genre, pub_date, cover_url, club_id, is_active=false, questions_generated=false — using upsert keyed on (club_id, title). Use the uuid returned as each card's book_id from now on.<br>
+• Vote button writes votes.book_id = that uuid (NOT the pool integer id). Keep one-vote-per-user-per-club; changing a vote updates the existing row.<br>
+• Swap: upsert the new candidate into books the same way so it's immediately votable.<br>
+• Host-only "Close voting & reveal the winner" action: finds book with most votes for this club, sets is_active=true on that book, is_active=false on all others.<br>
+• After discussion questions are generated for the active book, set questions_generated=true so the dashboard badge is truthful.</blockquote>` },
+  { name:'Prompt 8 — RSVP screen', tag:'CLAUDE → LOVABLE',
+    body:`<blockquote>Create an RSVP screen for the next meetup. Show date, time, and location prominently at the top (read from next upcoming row in meetups table). Below, show three large buttons: Yes / Maybe / No, with a friendly micro-confirmation animation on selection. Below that, a simple avatar list of who's RSVP'd "yes" — feels social, not transactional.<br><br>
+• On mount, read the current user's existing response from rsvps table and highlight their current selection.<br>
+• On button click, upsert the user's response (meetup_id, user_id, response — unique constraint replaces any prior response).<br>
+• Avatar list reads all rsvps where response = 'yes' for this meetup, updated via Supabase realtime.<br>
+• If no upcoming meetup exists, show: "No meetup scheduled yet — check back soon." Never broken or empty date fields.</blockquote>` },
+  { name:'Prompt 9 — Discussion questions screen', tag:'CLAUDE → LOVABLE',
+    body:`<blockquote>Create a discussion questions screen for the current book. At the top, show the book cover and title against a jewel-tone band with a thin gold sunburst or divider motif. Below, show 5–8 discussion questions in a clean numbered list with generous line spacing on an ivory background — these should feel like something you'd print and bring to book club, not like an app feature.<br><br>
+Actions:<br>
+• "Regenerate questions" — primary action, styled in champagne gold. Triggers a new Groq call and refreshes the list. Show a loading state while in flight.<br>
+• "Save as PDF" / "Share" — secondary only, styled as a subtle text link or ghost button. Not a primary filled button. No gold fill.<br><br>
+If the user is on the free tier, show a soft lock/upgrade prompt below the first 3 questions — not a jarring paywall modal, more like "Unlock all 8 questions with Swan Society Pro" with a subtle gold text link to the pricing screen.</blockquote>` },
+  { name:'Prompt 10 — Discussion question backend', tag:'CLAUDE → LOVABLE + EDGE FN',
+    note:'Belt and suspenders: embed cached fallbacks in BOTH the client bundle AND the edge function. Client-side AbortController enforces 8s timeout. Tested 6/13 — known good.',
+    body:`<p><strong>Groq prompt:</strong></p>
+<blockquote>You are creating discussion questions for a book club meeting.<br><br>
+Book: "{title}" by {author}<br><br>
+Generate 6–8 thoughtful discussion questions for a book club discussing this book. The questions should:<br>
+• Encourage personal reflection and connection to readers' own lives<br>
+• Explore themes, character motivations, and moral complexity<br>
+• Avoid simple yes/no or plot-recap questions<br>
+• Be suitable for a warm, social book club setting (not academic/classroom tone)<br>
+• Include at least one question about the ending or a turning point<br>
+• Ask one focused question each (avoid double-barreled questions)<br><br>
+Return ONLY a numbered list of questions, no preamble or commentary.</blockquote>
+<p style="margin-top:10px"><strong>Error state (must be built):</strong> If edge function errors or call times out after 8s, UI must automatically show cached fallback questions with a subtle "Showing saved questions" note — never a spinner that doesn't resolve or a blank screen.</p>
+<p style="margin-top:8px"><strong>Cached fallback — My Husband's Wife (Alice Feeney):</strong></p>
+<pre>1. What personal experiences have led you to reflect on the complexities of marriage?
+2. How did your perception of the main character change, and what triggered those shifts?
+3. How does the author use secrets and lies to comment on the human condition?
+4. What role does jealousy play, and have you navigated something similar in your own life?
+5. At what point did you start to question the narrator's reliability?
+6. What were your initial reactions to the final reveal?
+7. How do the characters' past experiences shape their present decisions?
+8. What is the author conveying about the gray areas between right and wrong?</pre>
+<p><strong>Cached fallback — The First Time I Saw Him (Laura Dave):</strong></p>
+<pre>1. What memories did the book's portrayal of past relationships evoke in you?
+2. How did the author's depiction of the protagonist's inner world affect your understanding?
+3. Where did your opinion of a key character shift — and what triggered that change?
+4. What role does forgiveness play? How did the characters' struggle relate to your own life?
+5. How did the non-linear structure contribute to the emotional impact?
+6. The ending raises questions about closure — what did you take away?
+7. What does the book say about the lasting weight of choices made under pressure?
+8. If you could ask the author one question about where the story goes next, what would it be?</pre>
+<p><strong>Cached fallback — The Storm (Rachel Hawkins):</strong></p>
+<pre>1. How did starting in crisis shape your experience of the characters before you knew them?
+2. Gothic settings often function as a character. How did the motel shape the tension?
+3. The protagonist has already been accused once. How did that history color the way you read her?
+4. At what point did you start forming your own theory — and how many times did it change?
+5. Which revelation hit hardest for you, and why?
+6. How did the ending sit with you — did it feel earned?
+7. What does the book suggest about how communities decide who to believe, and who to blame?
+8. If the storm is a metaphor, what is it a metaphor for?</pre>` },
+  { name:'Prompt 11 — Pricing / upgrade screen', tag:'CLAUDE → LOVABLE',
+    body:`<blockquote>Create a simple pricing screen with two tiers: "Free" and "Swan Society Pro" ($5/month). Free tier: one club, manual book entry, basic RSVP and voting. Pro tier: AI-generated discussion questions and theme suggestions, unlimited clubs, host rotation automation, shareable monthly recap cards. Two clean side-by-side ivory cards, Pro emphasized with a gold border or deco frame but not aggressive. Copy short — no marketing fluff, just what each tier includes.<br><br>
+"Upgrade to Pro" CTA must open a modal — not navigate away, not do nothing. Modal says: "Swan Society Pro is coming soon. Join the waitlist and be first to know when it launches." Single email input field + champagne gold "Join the waitlist" button. On submit, save email to waitlist table (email, created_at) + show "You're on the list. We'll be in touch." The Free CTA ("Get started free") links to the sign-up flow. Neither button is a dead end.</blockquote>` },
+  { name:'Prompt 12 — Affiliate links (nice-to-have)', tag:'CLAUDE → LOVABLE',
+    body:`<blockquote>On the dashboard's "This month's book" card and the discussion questions screen, add a small "Buy this book" button styled as a secondary action (gold outline, not filled). Links:<br>
+• My Husband's Wife: https://www.amazon.com/dp/125033781X?tag=swansociety-20<br>
+• The First Time I Saw Him: https://www.amazon.com/dp/1668002965?tag=swansociety-20</blockquote>` },
+  { name:'Prompt 13 — Host package screen (nice-to-have)', tag:'CLAUDE → LOVABLE',
+    body:`<blockquote>Create a "Host Package" screen (mockup-only, no live data needed) that bundles: a themed decor suggestion, 2–3 food/drink pairings, and a preview of the discussion questions. Frame visually as premium — single elegant ivory card or panel with a gold deco frame, feels like a printed keepsake. Label it "Swan Society Pro" with a small gold badge.</blockquote>` },
+  { name:'Prompt 14 — Host rotation view (nice-to-have)', tag:'CLAUDE → LOVABLE',
+    body:`<blockquote>Create a simple "rotation" view showing the order of upcoming hosts as a horizontal timeline or list — current host highlighted, next host clearly marked as "up next," remaining members shown in muted order. Include a small note showing the next meetup date next to the current host.</blockquote>` },
+  { name:'Prompt 15a/b/c — Polish pass', tag:'CLAUDE → LOVABLE',
+    note:'Send as small, iterative diffs — not full regenerations.',
+    body:`<blockquote><strong>15a — Empty states:</strong> Review all screens for what they look like before any data exists. Add tasteful empty-state messaging consistent with the design system.</blockquote>
+<blockquote><strong>15b — Mobile responsiveness ≤768px:</strong> Book suggestion cards stack vertically in a single column (not cramped side-by-side grid). Vote tally bars go full-width below stacked cards. RSVP Yes/Maybe/No buttons go full-width, min 48px height. Pricing tier cards stack vertically. No horizontal overflow or content clipped on any screen. Book cover images scale without breaking card aspect ratios — use genre color placeholder if images break.</blockquote>
+<blockquote><strong>15c — Visual consistency:</strong> Confirm spacing, gold divider usage, and card styles match across all screens. Tighten anything inconsistent with the design system.</blockquote>` }
 ];
 
 // ── LOG ENTRIES ──
-const LOG_ENTRIES = [
-  { id:'log-p1', label:'Prompt 1 — Project creation', checks:['Project created'] },
-  { id:'log-p2', label:'Prompt 2 — Design system + auth', checks:['Auth wired','Visual check ✓','get_diff pulled'] },
-  { id:'log-p3', label:'Prompt 3 — Supabase schema', checks:['clubs ✓','meetups ✓','books ✓','votes ✓','rsvps ✓','waitlist ✓'] },
-  { id:'log-p3a', label:'Prompt 3a — RLS policies', checks:['RLS on all tables','Host can read own data','Second user cannot read host data'] },
-  { id:'log-p4', label:'Prompt 4 — Club creation flow', checks:['Sign up → welcome screen ✓','Club created in DB ✓','Redirect to dashboard ✓'] },
-  { id:'log-p5', label:'Prompt 5 — Dashboard', checks:['Reads from Supabase ✓','Empty states show ✓'] },
-  { id:'log-p6', label:'Prompt 6 — Book suggestion screen', checks:['3 cards showing ✓','Swap works ✓','Vote tallies live ✓','Cover fallback ✓'] },
-  { id:'log-p7', label:'Prompt 7 — Book suggestion backend', checks:['Edge function deployed ✓','Descriptions from Groq ✓','Groq log snapshot ✓'] },
-  { id:'log-p7a', label:'Prompt 7a — Vote → book loop', checks:['Books upserted to DB ✓','Votes write uuid ✓','Close voting → is_active ✓','Dashboard updates ✓'] },
-  { id:'log-p8', label:'Prompt 8 — RSVP screen', checks:['Reads meetups table ✓','Upsert on click ✓','Avatar list live ✓','Empty state ✓'] },
-  { id:'log-p9', label:'Prompt 9 — Discussion questions screen', checks:['Regenerate = primary ✓','Save as PDF = ghost ✓','Soft lock below Q3 ✓'] },
-  { id:'log-p10', label:'Prompt 10 — Discussion question backend', checks:['Live Groq call ✓','8s timeout + fallback ✓','Demo book = fallback title ✓','Groq log snapshot ✓'] },
-  { id:'log-p11', label:'Prompt 11 — Pricing screen', checks:['Upgrade CTA → modal ✓','Waitlist saves to DB ✓','Free CTA → sign-up ✓'] },
-  { id:'log-p15', label:'Prompt 15 — Polish pass', checks:['Empty states ✓','Mobile ≤768px ✓','Visual consistency ✓'] },
-  { id:'log-deploy', label:'Deploy + Cold Judge Test', checks:['Deployed to live URL ✓','Cold test on different device ✓','All screens functional ✓'] }
+const LOG = [
+  { id:'p1',  name:'Prompt 1 — Project creation',      chks:['Project created'] },
+  { id:'p2',  name:'Prompt 2 — Design system + auth',  chks:['Auth wired ✓','Visual check ✓','get_diff pulled ✓'] },
+  { id:'p3',  name:'Prompt 3 — Supabase schema',        chks:['clubs ✓','meetups ✓','books ✓','votes ✓','rsvps ✓','waitlist ✓'] },
+  { id:'p3a', name:'Prompt 3a — RLS policies',          chks:['RLS on all 6 tables ✓','Host reads own data ✓','Second user blocked ✓'] },
+  { id:'p4',  name:'Prompt 4 — Club creation flow',     chks:['Sign up → welcome ✓','Club row in DB ✓','Redirect to dashboard ✓'] },
+  { id:'p5',  name:'Prompt 5 — Dashboard',              chks:['Reads from Supabase ✓','Empty states show ✓'] },
+  { id:'p6',  name:'Prompt 6 — Book suggestion screen', chks:['3 cards showing ✓','Swap works ✓','Live vote tallies ✓','Cover fallback ✓'] },
+  { id:'p7',  name:'Prompt 7 — Book suggestion backend',chks:['Edge fn deployed ✓','Descriptions from Groq ✓','Groq log snapshot ✓'] },
+  { id:'p7a', name:'Prompt 7a — Vote → book loop',      chks:['Books upserted (uuid) ✓','Votes write uuid ✓','Close voting → is_active ✓','Dashboard + DQ update ✓'] },
+  { id:'p8',  name:'Prompt 8 — RSVP screen',            chks:['Reads meetups table ✓','Upsert on click ✓','Avatar list live ✓','Empty state ✓'] },
+  { id:'p9',  name:'Prompt 9 — Discussion Qs screen',   chks:['Regenerate = primary ✓','Save as PDF = ghost ✓','Soft lock below Q3 ✓'] },
+  { id:'p10', name:'Prompt 10 — Discussion Q backend',  chks:['Live Groq call ✓','Client-side 8s fallback ✓','Demo book = fallback title ✓','Failure path tested ✓','Groq log snapshot ✓'] },
+  { id:'p11', name:'Prompt 11 — Pricing screen',        chks:['Upgrade → modal ✓','Waitlist saves to DB ✓','Free CTA → sign-up ✓'] },
+  { id:'p15', name:'Prompt 15 — Polish pass',           chks:['Empty states ✓','Mobile ≤768px ✓','Visual consistency ✓'] },
+  { id:'dep', name:'Deploy + Cold Judge Test',           chks:['Deployed to live URL ✓','Cold test diff device/network ✓','All screens functional ✓','Mobile on phone hotspot ✓'] },
+  { id:'sub', name:'Submission',                         chks:['Live URL in submission ✓','Screenshots/results added ✓','Submitted before 10AM ✓'] }
 ];
 
-// ── RESOURCES DATA ──
+// ── RESOURCES ──
 const RESOURCES = [
-  {
-    id:'book-pool', title:'Book Pool (Prompt 7)',
-    content:`<div class="sub-head">MYSTERY / THRILLER</div>
+  { id:'design', title:'Design System', body:`
+<div class="rsh">Palette</div>
+<ul>
+  <li>Emerald <code>#0C2A24</code> — base background / header bands</li>
+  <li>Garnet <code>#3D0F1E</code> — surface / section bands</li>
+  <li>Navy <code>#101935</code> — surface / section bands</li>
+  <li>Onyx <code>#1C1C1C</code> — deep background</li>
+  <li>Gold <code>#D4AF6A</code> — SINGLE accent (line work, icons, dividers, highlights, primary CTAs)</li>
+  <li>Ivory <code>#F4EFE3</code> — content cards, negative space</li>
+</ul>
+<div class="rsh">Typography</div>
+<ul>
+  <li>Headings: <strong>Cinzel</strong> — spaced capitals</li>
+  <li>Body / UI: <strong>Jost</strong> — clean modern sans</li>
+  <li>Editorial / quotes: <strong>Cormorant Garamond</strong></li>
+</ul>
+<div class="rsh">Motifs</div>
+<ul>
+  <li>Sunburst/fan shapes, thin gold dividers, chevrons — sparingly, like jewelry</li>
+  <li>Gold line-drawing icons (book, champagne glass, swan, feather) — no stock photos, no 3D</li>
+  <li>No gradients except where specified. One clear primary action per screen.</li>
+</ul>
+<div class="rsh">Cover Image Fallback (if URL fails)</div>
+<ul>
+  <li>Mystery/Thriller → emerald <code>#0C2A24</code></li>
+  <li>Romance → garnet <code>#3D0F1E</code></li>
+  <li>Historical Fiction / Literary Fiction → midnight navy <code>#101935</code></li>
+  <li>Fantasy → deep teal <code>#0D3333</code></li>
+</ul>
+<p>Title in champagne gold centered on the card. Never a broken image icon.</p>` },
+  { id:'schema', title:'Supabase Schema', body:`
+<div class="rsh">Tables</div>
+<ul>
+  <li><code>clubs</code> — id, name, genres[], host_user_id→auth.users, created_at</li>
+  <li><code>meetups</code> — id, club_id→clubs, date, time, location, created_at</li>
+  <li><code>books</code> — id, club_id→clubs, title, author, genre, pub_date, cover_url, is_active (bool), questions_generated (bool), created_at</li>
+  <li><code>votes</code> — id, club_id→clubs, book_id→books, user_id→auth.users, created_at · UNIQUE(club_id, user_id)</li>
+  <li><code>rsvps</code> — id, club_id→clubs, meetup_id→meetups, user_id→auth.users, response ('yes'|'maybe'|'no'), created_at · UNIQUE(meetup_id, user_id)</li>
+  <li><code>waitlist</code> — id, email UNIQUE, created_at</li>
+</ul>
+<div class="rsh">Groq Config</div>
+<ul>
+  <li>Model: <code>llama-3.3-70b-versatile</code></li>
+  <li>Temp: <code>0.7</code></li>
+  <li>Key location: Supabase Cloud → Secrets → <code>GROQ_API_KEY</code> (NOT env vars)</li>
+  <li>Timeout: 8s (AbortController client-side, not edge-function config alone)</li>
+</ul>
+<div class="rsh">Key Architecture Rules</div>
+<ul>
+  <li>Client owns pool state (hardcoded JSON with integer IDs)</li>
+  <li>Swap is client-side array lookup — no network call</li>
+  <li>Edge function writes descriptions only, never selects titles</li>
+  <li>Book UUIDs from DB are the identity used in votes.book_id — never the integer pool ID</li>
+  <li>No demo mode, no hardcoded state — all data persists in Supabase</li>
+</ul>` },
+  { id:'bookpool', title:'Book Pool (12 titles)', body:`
+<div class="rsh">Mystery / Thriller</div>
 <ol>
   <li>The Storm — Rachel Hawkins (January 2026)</li>
   <li>My Husband's Wife — Alice Feeney (January 2026)</li>
   <li>The First Time I Saw Him — Laura Dave (January 2026)</li>
 </ol>
-<div class="sub-head">HISTORICAL FICTION</div>
+<div class="rsh">Historical Fiction</div>
 <ol>
   <li>Cool Machine — Colson Whitehead (2026)</li>
   <li>Japanese Gothic — Kylie Lee Baker (2026)</li>
   <li>The League of Lonely War Women — Andie Newton (2026)</li>
 </ol>
-<div class="sub-head">LITERARY FICTION</div>
+<div class="rsh">Literary Fiction</div>
 <ol>
   <li>Go Gentle — Maria Semple (April 2026)</li>
   <li>The Great Wherever — Shannon Sanders (April 2026)</li>
 </ol>
-<div class="sub-head">FANTASY</div>
+<div class="rsh">Fantasy</div>
 <ol>
   <li>Daughter of Crows — Mark Lawrence (March 2026)</li>
   <li>The Rainshadow Orphans — Naomi Ishiguro (May 2026)</li>
 </ol>
-<div class="sub-head">ROMANCE</div>
+<div class="rsh">Romance</div>
 <ol>
   <li>You Won't Forget Me — Mazey Eddings (June 2026)</li>
   <li>Just for the Cameras — Meghan Quinn (February 2026)</li>
 </ol>
-<p style="margin-top:12px;font-size:.78rem;color:rgba(244,239,227,.5)">⚠️ Re-verify pub dates are still within 6 months as of 6/21</p>`
-  },
-  {
-    id:'fallback-mhw', title:'Fallback Questions — My Husband\'s Wife',
-    content:`<p style="font-size:.75rem;color:var(--gold);margin-bottom:10px">ALICE FEENEY · Demo fallback #1</p>
+<div class="res-warn">⚠️ Re-verify pub dates are still within 6 months as of 6/20 — one day before the clock starts.</div>` },
+  { id:'fallbacks', title:'Fallback Questions (all 3 titles)', body:`
+<div class="rsh">My Husband's Wife — Alice Feeney</div>
 <ol>
-  <li>What personal experiences have led you to reflect on the complexities of marriage, similar to those explored in this book?</li>
-  <li>How did your perception of the main character change throughout the novel, and what triggered those shifts?</li>
-  <li>How does the author use secrets and lies to comment on the human condition — what did you take from it?</li>
-  <li>What role does jealousy play in the novel, and have you navigated something similar in your own life?</li>
-  <li>At what point did you start to question the narrator's reliability, and how did that change your reading experience?</li>
-  <li>What were your initial reactions to the final reveal — and have your thoughts about it changed since finishing?</li>
-  <li>How do the characters' past experiences shape their present decisions? What does that say about the impact of trauma?</li>
+  <li>What personal experiences have led you to reflect on the complexities of marriage?</li>
+  <li>How did your perception of the main character change, and what triggered those shifts?</li>
+  <li>How does the author use secrets and lies to comment on the human condition?</li>
+  <li>What role does jealousy play, and have you navigated something similar?</li>
+  <li>At what point did you start to question the narrator's reliability?</li>
+  <li>What were your initial reactions to the final reveal?</li>
+  <li>How do the characters' past experiences shape their present decisions?</li>
   <li>What is the author conveying about the gray areas between right and wrong?</li>
-</ol>`
-  },
-  {
-    id:'fallback-ftish', title:'Fallback Questions — The First Time I Saw Him',
-    content:`<p style="font-size:.75rem;color:var(--gold);margin-bottom:10px">LAURA DAVE · Demo fallback #2</p>
+</ol>
+<div class="rsh">The First Time I Saw Him — Laura Dave</div>
 <ol>
-  <li>What memories did the book's portrayal of past relationships evoke in you, and how did that shape your reading?</li>
-  <li>How did the author's depiction of the protagonist's inner world affect your understanding of her choices?</li>
-  <li>Where in the story did your opinion of a key character shift — and what triggered that change?</li>
-  <li>What role does forgiveness play in the story? How did the characters' struggle with it relate to your own experiences?</li>
-  <li>How did the non-linear structure contribute to the emotional impact — what did you learn about the characters through it?</li>
-  <li>The ending raises questions about closure — what did you take away, and how did it leave you feeling?</li>
+  <li>What memories did the book's portrayal of past relationships evoke in you?</li>
+  <li>How did the author's depiction of the protagonist's inner world affect your understanding?</li>
+  <li>Where did your opinion of a key character shift — and what triggered that change?</li>
+  <li>What role does forgiveness play? How did the characters' struggle relate to your own life?</li>
+  <li>How did the non-linear structure contribute to the emotional impact?</li>
+  <li>The ending raises questions about closure — what did you take away?</li>
   <li>What does the book say about the lasting weight of choices made under pressure?</li>
   <li>If you could ask the author one question about where the story goes next, what would it be?</li>
-</ol>`
-  },
-  {
-    id:'fallback-storm', title:'Fallback Questions — The Storm',
-    content:`<p style="font-size:.75rem;color:var(--gold);margin-bottom:10px">RACHEL HAWKINS · Demo fallback #3</p>
+</ol>
+<div class="rsh">The Storm — Rachel Hawkins</div>
 <ol>
-  <li>The novel opens in the middle of the storm — how did starting in crisis shape your experience of the characters before you knew them?</li>
-  <li>Gothic settings often function as a character themselves. How did the motel shape the tension, and what would the story lose without it?</li>
-  <li>The protagonist has already been accused once. How did that history color the way you read her choices throughout the book?</li>
-  <li>At what point did you start forming your own theory about what actually happened — and how many times did it change?</li>
-  <li>Secrets in small, isolated spaces tend to surface under pressure. Which revelation hit hardest for you, and why?</li>
-  <li>How did the ending sit with you — did it feel earned, or did it leave something unresolved?</li>
+  <li>How did starting in crisis shape your experience of the characters?</li>
+  <li>Gothic settings often function as a character. How did the motel shape the tension?</li>
+  <li>The protagonist has already been accused once. How did that history color the way you read her?</li>
+  <li>At what point did you start forming your own theory — and how many times did it change?</li>
+  <li>Which revelation hit hardest for you, and why?</li>
+  <li>How did the ending sit with you — did it feel earned?</li>
   <li>What does the book suggest about how communities decide who to believe, and who to blame?</li>
-  <li>If the storm is a metaphor, what is it a metaphor for — and do you think the author intended that reading?</li>
-</ol>`
-  },
-  {
-    id:'affiliate', title:'Affiliate Links (Prompt 12)',
-    content:`<p style="font-size:.75rem;color:rgba(220,100,100,.8);margin-bottom:10px">⚠️ Click-test all links before demo day</p>
-<div class="sub-head">MY HUSBAND'S WIFE — Alice Feeney</div>
-<p>Paperback/Hardcover: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
-<p>Kindle: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
-<div class="sub-head">THE FIRST TIME I SAW HIM — Laura Dave</div>
-<p>Paperback/Hardcover: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
-<p>Kindle: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
-<div class="sub-head">THE STORM — Rachel Hawkins</div>
-<p>Paperback/Hardcover: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
-<p>Kindle: <code>https://www.amazon.com/dp/ASIN?tag=swansociety-20</code></p>
-<p style="margin-top:12px;font-size:.78rem;color:rgba(244,239,227,.5)">See Affiliate Links — Prompt 12.md for real ASINs. Swap placeholders before Prompt 12.</p>`
-  },
-  {
-    id:'supabase', title:'Supabase Schema Reference',
-    content:`<div class="sub-head">TABLES</div>
-<ul>
-  <li><strong>clubs</strong> — id, name, genres[], host_user_id, created_at</li>
-  <li><strong>meetups</strong> — id, club_id→clubs, date, time, location, created_at</li>
-  <li><strong>books</strong> — id, club_id→clubs, title, author, genre, pub_date, cover_url, is_active (bool), questions_generated (bool), created_at</li>
-  <li><strong>votes</strong> — id, club_id→clubs, book_id→books, user_id→auth.users, created_at · UNIQUE(club_id, user_id)</li>
-  <li><strong>rsvps</strong> — id, club_id→clubs, meetup_id→meetups, user_id→auth.users, response (yes/maybe/no), created_at · UNIQUE(meetup_id, user_id)</li>
-  <li><strong>waitlist</strong> — id, email UNIQUE, created_at</li>
-</ul>
-<div class="sub-head">GROQ</div>
-<ul>
-  <li>Model: <code>llama-3.3-70b-versatile</code></li>
-  <li>Temp: <code>0.7</code></li>
-  <li>Key: Cloud → Secrets → <code>GROQ_API_KEY</code> (NOT env vars)</li>
-</ul>
-<div class="sub-head">DEMO SEED CONSTRAINT</div>
-<p>Active book must be one of: My Husband's Wife · The First Time I Saw Him · The Storm</p>`
-  },
-  {
-    id:'design', title:'Design System Reference',
-    content:`<div class="sub-head">PALETTE</div>
-<ul>
-  <li>Emerald #0C2A24 · Garnet #3D0F1E · Navy #101935 · Onyx #1C1C1C</li>
-  <li>Gold #D4AF6A (single accent — line work, icons, dividers, highlights)</li>
-  <li>Ivory #F4EFE3 (content cards, negative space)</li>
-</ul>
-<div class="sub-head">TYPOGRAPHY</div>
-<ul>
-  <li>Headings: Cinzel — spaced capitals</li>
-  <li>Body: Jost — clean modern sans</li>
-  <li>Editorial/quotes: Cormorant Garamond</li>
-</ul>
-<div class="sub-head">MOTIFS</div>
-<ul>
-  <li>Sunburst/fan shapes, thin gold dividers, chevrons — used sparingly</li>
-  <li>Gold line-drawing icons (book, champagne glass, swan, feather) — no stock photos</li>
-  <li>No gradients except palette-specified</li>
-  <li>Every screen: one clear primary action</li>
-</ul>`
-  }
+  <li>If the storm is a metaphor, what is it a metaphor for?</li>
+</ol>
+<div class="res-ok">✅ All 3 sets tested live 6/13 via Groq (llama-3.3-70b-versatile, temp 0.7). These are real Groq output, not fabricated.</div>` },
+  { id:'affiliate', title:'Affiliate Links', body:`
+<div class="res-ok">✅ Click-tested 6/14 — both ASINs confirmed against live Amazon pages.</div>
+<div class="rsh">My Husband's Wife — Alice Feeney</div>
+<p>Hardcover (US): <code>https://www.amazon.com/dp/125033781X?tag=swansociety-20</code></p>
+<p>ASIN: 125033781X · Flatiron Books US · Jan 20, 2026. Same ASIN as cover image.</p>
+<div class="rsh">The First Time I Saw Him — Laura Dave</div>
+<p>Hardcover/PB (US): <code>https://www.amazon.com/dp/1668002965?tag=swansociety-20</code></p>
+<p>Kindle: <code>https://www.amazon.com/dp/B0FCSN114P?tag=swansociety-20</code></p>
+<p>ASIN: 1668002965 · Scribner US · Jan 6, 2026. Reese's Book Club pick.</p>
+<div class="res-warn">⚠️ Click-test both links again before submission. Do NOT use the UK editions (1806156083 / 1529912067) — they fail on amazon.com.</div>` },
+  { id:'submission', title:'Submission Pitch (draft)', body:`
+<div class="rsh">Why This</div>
+<p>Every book club I've seen runs the same way: one person ends up picking the candidates, polling the group, chasing RSVPs, writing the discussion questions, and figuring out who's bringing the cheese plate. That person burns out. The club dies. Swan Society runs that back end for you — AI suggests the next book, the group votes, RSVPs get tracked, and discussion questions are generated automatically.</p>
+<div class="rsh">Why Now</div>
+<p>AI made the two hardest parts of running a book club — picking what to read and prepping smart discussion questions — happen in seconds. There's also a design gap: most tools in this space are built like internal admin tools. Nobody's made running a book club feel as good as the part where you're actually talking about the book.</p>
+<div class="rsh">Why You</div>
+<p>I'm a busy mom of three. Free time is rare. I've watched a book club fall apart under exactly this weight. I also believe beautiful design changes how much people value something. Swan Society is my attempt to build something a host opens and immediately gets — that feels like a treat rather than a chore.</p>
+<div class="rsh">Anything Else</div>
+<p>Full loop — not a landing page. Freemium + Host Pro (~$5/mo). TAM ~$234M. The single best idea: host rotation with guided handoff — not just easing burnout for one host, but making sure it never lands entirely on one person again. Beyond book clubs: supper clubs, game nights, running groups. Book clubs are the wedge.</p>` }
 ];
 
-// ── INIT ──
+// ── RENDER ──
 function init() {
   renderSchedule();
   renderLog();
+  renderFullPrompts();
   renderResources();
-  startCountdown();
-  loadLog();
+  startClock();
+  loadData();
 }
 
-// ── RENDER SCHEDULE ──
 function renderSchedule() {
-  const grid = document.getElementById('schedule-grid');
-  grid.innerHTML = HOURS.map(h => `
-    <div class="hr-block" id="block-${h.id}">
-      <div class="hr-header" onclick="toggleBlock('${h.id}')">
-        <div class="hr-num">${h.label}</div>
-        <div class="hr-time">${h.time}</div>
-        <div class="hr-title">${h.title}</div>
-        <div class="hr-badge ${h.badge==='OPTIONAL'?'nice':h.badge==='POLISH'?'polish':''}">${h.badge}</div>
-        <div class="hr-check" id="check-${h.id}" onclick="toggleCheck('${h.id}', event)"></div>
+  document.getElementById('sched-grid').innerHTML = BLOCKS.map(b => `
+    <div class="hr-block" id="blk-${b.id}">
+      <div class="hr-head" onclick="toggleBlock('${b.id}')">
+        <div class="hr-lbl">${b.lbl}</div>
+        <div class="hr-time">${b.time}</div>
+        <div class="hr-title">${b.title}</div>
+        <div class="hr-badge ${b.bType}">${b.badge}</div>
+        <div class="hr-check" id="chk-${b.id}" onclick="toggleCheck('${b.id}',event)"></div>
       </div>
-      <div class="hr-expand" id="expand-${h.id}">
-        ${h.prompts.map(p => `
-          <div class="prompt-card">
-            <div class="prompt-label">${p.name} <span class="prompt-tag">${p.tag}</span></div>
-            <div class="prompt-text">${p.text}</div>
-            ${p.note ? `<div class="prompt-note">${p.note}</div>` : ''}
-            ${p.gate ? `<div class="gate-note"><strong>⛔ GATE:</strong> ${p.gate}</div>` : ''}
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
-
-  // Restore checks
-  const checks = JSON.parse(localStorage.getItem('mc_checks') || '{}');
-  Object.keys(checks).forEach(id => { if(checks[id]) markCheck(id, true); });
+      <div class="hr-expand" id="exp-${b.id}">${SCHED_CONTENT[b.id]||''}</div>
+    </div>`).join('');
+  const checks = JSON.parse(localStorage.getItem('mc_chk')||'{}');
+  Object.keys(checks).forEach(id => { if(checks[id]) setCheck(id,true); });
 }
 
-function toggleBlock(id) {
-  const exp = document.getElementById('expand-' + id);
-  exp.classList.toggle('open');
-}
-
-function toggleCheck(id, e) {
+function toggleBlock(id) { document.getElementById('exp-'+id).classList.toggle('open'); }
+function toggleCheck(id,e) {
   e.stopPropagation();
-  const el = document.getElementById('check-' + id);
-  const checked = !el.classList.contains('checked');
-  markCheck(id, checked);
-  const checks = JSON.parse(localStorage.getItem('mc_checks') || '{}');
-  checks[id] = checked;
-  localStorage.setItem('mc_checks', JSON.stringify(checks));
+  const el = document.getElementById('chk-'+id);
+  const v = !el.classList.contains('done');
+  setCheck(id,v);
+  const c = JSON.parse(localStorage.getItem('mc_chk')||'{}');
+  c[id]=v; localStorage.setItem('mc_chk',JSON.stringify(c));
+}
+function setCheck(id,v) {
+  const el=document.getElementById('chk-'+id), blk=document.getElementById('blk-'+id);
+  if(!el||!blk) return;
+  el.classList.toggle('done',v); blk.classList.toggle('done',v);
 }
 
-function markCheck(id, checked) {
-  const el = document.getElementById('check-' + id);
-  const block = document.getElementById('block-' + id);
-  if (!el || !block) return;
-  if (checked) {
-    el.classList.add('checked');
-    block.classList.add('done-block');
-  } else {
-    el.classList.remove('checked');
-    block.classList.remove('done-block');
-  }
+function renderLog() {
+  document.getElementById('log-grid').innerHTML = LOG.map(e => `
+    <div class="log-entry">
+      <div class="log-entry-head">
+        <div class="log-name">${e.name}</div>
+        <input class="log-time-input" id="${e.id}-t" type="text" placeholder="time sent (e.g. 10:22 AM)" oninput="autoSave()">
+      </div>
+      <div class="log-checks">${e.chks.map((c,i)=>`
+        <label class="log-chk"><input type="checkbox" id="${e.id}-c${i}" onchange="autoSave()"> ${c}</label>`).join('')}
+      </div>
+      <textarea class="log-ta" id="${e.id}-n" placeholder="Notes, diff summary, issues encountered…" oninput="autoSave()"></textarea>
+    </div>`).join('');
 }
 
-// ── COUNTDOWN + ACTIVE BLOCK ──
-function startCountdown() {
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+function renderFullPrompts() {
+  document.getElementById('prompts-full').innerHTML = FULL_PROMPTS.map(p => `
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-head" onclick="toggleCard(this)">
+        <h3>${p.name} <span style="font-size:.58rem;color:rgba(212,175,106,.5);margin-left:8px">${p.tag}</span></h3>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="card-body">
+        ${p.note?`<div class="p-gate" style="margin-bottom:12px">${p.note}</div>`:''}
+        <div class="p-body">${p.body}</div>
+      </div>
+    </div>`).join('');
 }
 
-function updateCountdown() {
-  const now = new Date();
-  const badge = document.getElementById('current-hr-badge');
-  const status = document.getElementById('countdown-status');
-  const blockLabel = document.getElementById('current-block-label');
+function renderResources() {
+  document.getElementById('res-grid').innerHTML = RESOURCES.map(r => `
+    <div class="res-card">
+      <div class="res-head" id="rh-${r.id}" onclick="toggleRes('${r.id}')">
+        <h3>${r.title}</h3>
+        <span class="res-icon">▼</span>
+      </div>
+      <div class="res-body" id="rb-${r.id}">${r.body}</div>
+    </div>`).join('');
+}
 
-  if (now < CLOCK_START) {
-    const diff = CLOCK_START - now;
-    setDigits(diff);
+function toggleCard(head) { head.classList.toggle('open'); head.nextElementSibling.classList.toggle('open'); }
+function toggleRes(id) {
+  document.getElementById('rh-'+id).classList.toggle('open');
+  document.getElementById('rb-'+id).classList.toggle('open');
+}
+
+// ── CLOCK ──
+function startClock() { updateClock(); setInterval(updateClock, 1000); }
+function updateClock() {
+  const now = new Date(), badge = document.getElementById('now-badge');
+  const status = document.getElementById('cd-status'), blockEl = document.getElementById('cd-block');
+  if (now < START) {
+    setDigs(START - now);
     status.textContent = 'Clock starts Sun 6/21 · 10:00 AM ET';
-    badge.style.display = 'none';
-    blockLabel.textContent = '';
-  } else if (now >= CLOCK_END) {
-    document.getElementById('cd-d').textContent = '00';
-    document.getElementById('cd-h').textContent = '00';
-    document.getElementById('cd-m').textContent = '00';
-    document.getElementById('cd-s').textContent = '00';
+    badge.style.display = 'none'; blockEl.textContent = '';
+  } else if (now >= END) {
+    ['cd-d','cd-h','cd-m','cd-s'].forEach(id => document.getElementById(id).textContent='00');
     status.textContent = 'Hackathon complete — time to submit!';
     badge.style.display = 'none';
-    blockLabel.textContent = '';
   } else {
-    const diff = CLOCK_END - now;
-    setDigits(diff);
-    const elapsed = (now - CLOCK_START) / 3600000; // hours elapsed
-    status.textContent = 'Clock is running — 48 hours ending Tue 6/23 · 10:00 AM ET';
-
-    // Find current block
+    setDigs(END - now);
+    status.textContent = 'Clock running — ends Tue 6/23 · 10:00 AM ET';
+    const el = (now - START) / 3600000;
     let cur = null;
-    HOURS.forEach(h => {
-      if (elapsed >= h.offsetHr && elapsed < h.offsetHr + h.durationHr) cur = h;
-    });
+    BLOCKS.forEach(b => { if(el >= b.offHr && el < b.offHr + b.durHr) cur = b; });
     if (cur) {
-      badge.textContent = 'NOW: ' + cur.title;
-      badge.style.display = 'block';
-      blockLabel.textContent = cur.label + ' · ' + cur.time;
-      // highlight
-      document.querySelectorAll('.hr-block').forEach(b => b.classList.remove('active-block'));
-      const activeBlock = document.getElementById('block-' + cur.id);
-      if (activeBlock) {
-        activeBlock.classList.add('active-block');
-        // auto-open if first visit
-        const exp = document.getElementById('expand-' + cur.id);
-        if (exp && !exp.classList.contains('open')) exp.classList.add('open');
-      }
+      badge.textContent = 'NOW: ' + cur.title; badge.style.display = 'block';
+      blockEl.textContent = cur.lbl + ' · ' + cur.time;
+      document.querySelectorAll('.hr-block').forEach(b => b.classList.remove('active'));
+      const ab = document.getElementById('blk-'+cur.id);
+      if(ab) { ab.classList.add('active'); const ex=document.getElementById('exp-'+cur.id); if(ex&&!ex.classList.contains('open')) ex.classList.add('open'); }
     }
   }
 }
-
-function setDigits(ms) {
-  const s = Math.floor(ms / 1000) % 60;
-  const m = Math.floor(ms / 60000) % 60;
-  const h = Math.floor(ms / 3600000) % 24;
-  const d = Math.floor(ms / 86400000);
-  document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
-  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+function setDigs(ms) {
+  const s=Math.floor(ms/1000)%60, m=Math.floor(ms/60000)%60, h=Math.floor(ms/3600000)%24, d=Math.floor(ms/86400000);
+  document.getElementById('cd-d').textContent=String(d).padStart(2,'0');
+  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
 }
 
-// ── RENDER LOG ──
-function renderLog() {
-  const grid = document.getElementById('log-grid');
-  grid.innerHTML = LOG_ENTRIES.map(e => `
-    <div class="log-entry">
-      <div class="log-entry-head">
-        <div class="log-prompt-name">${e.label}</div>
-        <input type="text" class="log-timestamp" id="${e.id}-time" placeholder="time sent (e.g. 10:22 AM)" style="background:transparent;border:none;color:rgba(244,239,227,.4);font-size:.75rem;font-family:Jost,sans-serif;outline:none;max-width:160px">
-      </div>
-      <div class="log-checks">
-        ${e.checks.map((c,i) => `
-          <label class="log-check-item">
-            <input type="checkbox" id="${e.id}-chk-${i}" onchange="autoSaveLog()"> ${c}
-          </label>
-        `).join('')}
-      </div>
-      <textarea class="log-field" id="${e.id}-notes" placeholder="Notes, diff summary, issues…" oninput="autoSaveLog()"></textarea>
-    </div>
-  `).join('');
-}
-
-// ── LOG PERSISTENCE ──
-let saveTimer;
-function autoSaveLog() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveLog, 1500);
-}
-
+// ── PERSISTENCE ──
+let saveT;
+function autoSave() { clearTimeout(saveT); saveT = setTimeout(saveLog, 1200); }
 function saveLog() {
-  const data = {};
-  LOG_ENTRIES.forEach(e => {
-    data[e.id + '-time'] = document.getElementById(e.id + '-time')?.value || '';
-    data[e.id + '-notes'] = document.getElementById(e.id + '-notes')?.value || '';
-    e.checks.forEach((_,i) => {
-      data[e.id + '-chk-' + i] = document.getElementById(e.id + '-chk-' + i)?.checked || false;
-    });
+  const d = {};
+  LOG.forEach(e => {
+    d[e.id+'-t'] = document.getElementById(e.id+'-t')?.value||'';
+    d[e.id+'-n'] = document.getElementById(e.id+'-n')?.value||'';
+    e.chks.forEach((_,i) => { d[e.id+'-c'+i] = document.getElementById(e.id+'-c'+i)?.checked||false; });
   });
-  // reflections
-  ['refl-1','refl-2','refl-3','refl-4','refl-5'].forEach(id => {
-    data[id] = document.getElementById(id)?.value || '';
-  });
-  localStorage.setItem('mc_log', JSON.stringify(data));
-
-  // Flash confirm
-  ['save-confirm','save-confirm-2'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.style.opacity = '1'; setTimeout(() => el.style.opacity = '0', 1800); }
-  });
+  ['refl1','refl2','refl3','refl4','refl5'].forEach(id => { d[id]=document.getElementById(id)?.value||''; });
+  localStorage.setItem('mc_log', JSON.stringify(d));
+  const ok = document.getElementById('save-ok');
+  if(ok) { ok.style.opacity='1'; setTimeout(()=>ok.style.opacity='0', 1800); }
 }
-
-function loadLog() {
-  const raw = localStorage.getItem('mc_log');
-  if (!raw) return;
-  const data = JSON.parse(raw);
-  Object.keys(data).forEach(k => {
-    const el = document.getElementById(k);
-    if (!el) return;
-    if (el.type === 'checkbox') el.checked = data[k];
-    else el.value = data[k];
+function loadData() {
+  const raw = localStorage.getItem('mc_log'); if(!raw) return;
+  const d = JSON.parse(raw);
+  Object.keys(d).forEach(k => {
+    const el = document.getElementById(k); if(!el) return;
+    if(el.type==='checkbox') el.checked=d[k]; else el.value=d[k];
   });
 }
-
-// ── RENDER RESOURCES ──
-function renderResources() {
-  const grid = document.getElementById('resources-grid');
-  grid.innerHTML = RESOURCES.map(r => `
-    <div class="resource-card">
-      <div class="resource-card-head" id="rh-${r.id}" onclick="toggleResource('${r.id}')">
-        <h3>${r.title}</h3>
-        <span>▼</span>
-      </div>
-      <div class="resource-card-body" id="rb-${r.id}">
-        ${r.content}
-      </div>
-    </div>
-  `).join('');
-}
-
-function toggleResource(id) {
-  const head = document.getElementById('rh-' + id);
-  const body = document.getElementById('rb-' + id);
-  head.classList.toggle('open');
-  body.classList.toggle('open');
-}
-
-// Start if already authed
-if (sessionStorage.getItem('mc_auth') === '1') init();
 </script>
 </body>
 </html>
